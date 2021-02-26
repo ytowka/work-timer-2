@@ -66,6 +66,8 @@ dependencies {
 
     // Activity KTX for viewModels()
     implementation "androidx.activity:activity-ktx:1.1.0"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0"
+
 
     //room
     def room_version = "2.2.6"

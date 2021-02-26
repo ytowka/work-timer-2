@@ -1,6 +1,7 @@
 package com.ytowka.worktimer2.data
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import com.ytowka.worktimer2.data.database.ActionDao
 import com.ytowka.worktimer2.data.database.SetDao
 import com.ytowka.worktimer2.data.models.Action
@@ -9,16 +10,20 @@ import com.ytowka.worktimer2.data.models.SetInfo
 
 class LocalRepository(context: Context,val setDao: SetDao, val actionDao: ActionDao) : Repository{
 
-    override suspend fun getSets(): List<ActionSet> {
-       return setDao.getSets()
+    override fun getSets(): LiveData<List<ActionSet>> {
+       return setDao.getSetsAsLiveData()
     }
+
+    override fun getSet(id: Int): LiveData<ActionSet> {
+        return setDao.getSetAsLiveData(id)
+    }
+
     override suspend fun deleteSet(actionSet: ActionSet) {
         setDao.deleteSet(actionSet)
     }
 
-
-    override suspend fun getActions(setId: Int): List<Action> {
-        return actionDao.getSetActions(setId)
+    override fun getActions(setId: Int): LiveData<List<Action>> {
+        return actionDao.getSetActionsAsLiveData(setId)
     }
     override suspend fun insertAction(action: Action) {
         actionDao.insertAction(action)
@@ -36,5 +41,4 @@ class LocalRepository(context: Context,val setDao: SetDao, val actionDao: Action
     override suspend fun updateSetInfo(setInfo: SetInfo) {
         setDao.updateSetInfo(setInfo)
     }
-
 }

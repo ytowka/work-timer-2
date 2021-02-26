@@ -1,5 +1,10 @@
 <resources>
-    <string name="app_name">work timer 2.0</string>
+    <string name="app_name">work timer</string>
+    <string name="selected">selected</string>
+    <string name="cancel">cancel</string>
+    <string name="delete">delete</string>
+    <string name="copy">copy</string>
+    <string name="search">search</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

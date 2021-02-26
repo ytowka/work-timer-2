@@ -111,14 +111,18 @@ class DatabaseTest {
     @Test
     fun updateSetInfo() = runBlockingTest {
         val testName = "test name"
-        val actionInfo = SetInfo(name = testName)
+        var actionInfo = SetInfo(name = testName)
         setDao.addSetInfo(actionInfo)
 
-        val newTestName = "new name"
+        actionInfo = setDao.getSets()[0].setInfo
+
+        val newTestName = "new test name"
         actionInfo.name = newTestName
         setDao.updateSetInfo(actionInfo)
 
         val sets = setDao.getSets()
+
+        assertThat(sets[0].setInfo.name).isEqualTo(newTestName)
 
     }
 }

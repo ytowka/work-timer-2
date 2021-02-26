@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">work timer</string>
+    <string name="selected">выделено</string>
+    <string name="cancel">отмена</string>
+    <string name="delete">удалить</string>
+    <string name="copy">скопировать</string>
+    <string name="search">поиск</string>
+</resources>

@@ -1,6 +1,7 @@
 package com.ytowka.worktimer2.data.database
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.ytowka.worktimer2.data.models.ActionSet
 import com.ytowka.worktimer2.data.models.SetInfo
@@ -11,12 +12,21 @@ interface SetDao {
     @Query("SELECT * FROM sets_table")
     suspend fun getSets(): List<ActionSet>
 
+
+    @Transaction
+    @Query("SELECT * FROM sets_table")
+    fun getSetsAsLiveData(): LiveData<List<ActionSet>>
+
+    @Transaction
+    @Query("SELECT * FROM sets_table WHERE setId = :id")
+    fun getSetAsLiveData(id: Int): LiveData<ActionSet>
+
+
     suspend fun deleteSet(actionSet: ActionSet){
         deleteSetInfo(actionSet.setInfo)
         deleteActions(actionSet.setInfo.setId)
     }
-
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addSetInfo(setInfo: SetInfo)
 
     @Query("DELETE FROM actions_table WHERE setId = :setId")

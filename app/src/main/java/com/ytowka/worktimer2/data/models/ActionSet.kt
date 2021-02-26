@@ -17,6 +17,17 @@ class ActionSet(
         val duration = getTotalDuration()
         val minutes = duration / 60
         val seconds = duration % 60
-        return "${minutes}:${seconds}"
+        return "${if (minutes<10) "0${minutes}" else minutes}:${if (seconds<10) "0${seconds}" else seconds}"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if(other is ActionSet){
+            if(other.setInfo.setId == setInfo.setId) return true
+        }
+        return super.equals(other)
+    }
+
+    override fun hashCode(): Int {
+        return setInfo.setId
     }
 }
