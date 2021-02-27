@@ -18,4 +18,7 @@ class SetPreviewViewModel @Inject constructor(private val repository: Repository
     fun getSet(): LiveData<ActionSet>{
         return repository.getSet(getSetId())
     }
+    fun getSetActions(){
+
+    }
 }

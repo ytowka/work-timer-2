@@ -18,6 +18,10 @@ class LocalRepository(context: Context,val setDao: SetDao, val actionDao: Action
         return setDao.getSetAsLiveData(id)
     }
 
+    override suspend fun getSetInfo(id: Int): SetInfo {
+        return setDao.getSetInfo(id)
+    }
+
     override suspend fun deleteSet(actionSet: ActionSet) {
         setDao.deleteSet(actionSet)
     }
@@ -35,8 +39,8 @@ class LocalRepository(context: Context,val setDao: SetDao, val actionDao: Action
         actionDao.deleteAction(action)
     }
 
-    override suspend fun insertSetInfo(setInfo: SetInfo) {
-        setDao.addSetInfo(setInfo)
+    override suspend fun insertSetInfo(setInfo: SetInfo) : Long{
+        return setDao.insertSetInfo(setInfo)
     }
     override suspend fun updateSetInfo(setInfo: SetInfo) {
         setDao.updateSetInfo(setInfo)

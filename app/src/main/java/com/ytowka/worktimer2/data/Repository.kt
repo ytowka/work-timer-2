@@ -8,6 +8,7 @@ import com.ytowka.worktimer2.data.models.SetInfo
 interface Repository {
     fun getSets(): LiveData<List<ActionSet>>
     fun getSet(id: Int): LiveData<ActionSet>
+    suspend fun getSetInfo(id: Int): SetInfo
     suspend fun deleteSet(actionSet: ActionSet)
 
     fun getActions(setId: Int): LiveData<List<Action>>
@@ -15,6 +16,6 @@ interface Repository {
     suspend fun updateAction(action: Action)
     suspend fun deleteAction(action: Action)
 
-    suspend fun insertSetInfo(setInfo: SetInfo)
+    suspend fun insertSetInfo(setInfo: SetInfo): Long
     suspend fun updateSetInfo(setInfo: SetInfo)
 }

@@ -7,7 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
-import com.ytowka.worktimer2.R
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.ytowka.worktimer2.adapters.PreviewActionListAdapter
 import com.ytowka.worktimer2.databinding.FragmentSetPreviewBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -20,15 +21,27 @@ class SetPreviewFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         viewmodel = ViewModelProvider(this).get(SetPreviewViewModel::class.java)
+        viewmodel.setId = args.setId
         binding = FragmentSetPreviewBinding.inflate(inflater)
         return binding.root
     }
 
     override fun onStart() {
-        viewmodel.setId = args.setId
         super.onStart()
+        binding.rvPActionList.layoutManager = LinearLayoutManager(context)
+        val adapter = PreviewActionListAdapter()
+        binding.rvPActionList.adapter = adapter
+
         viewmodel.getSet().observe(this){
-            binding.previewToolbar.title = it.setInfo.name
+            binding.textSetNameTitle.text = it.setInfo.name
+            binding.textTimeOnButton.text = it.getStringDuration()
+            adapter.setup(it.actions)
+        }
+        binding.btnPEdit.setOnClickListener {
+
+        }
+        binding.btnPStart.setOnClickListener{
+
         }
     }
 }

@@ -9,6 +9,7 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.ytowka.worktimer2.data.models.Action
 import com.ytowka.worktimer2.data.models.SetInfo
+import com.ytowka.worktimer2.utils.getOrAwaitValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
@@ -43,6 +44,22 @@ class DatabaseTest {
         database.close()
     }
 
+    @Test
+    fun getSingleSet() = runBlockingTest{
+        val testName = "test name"
+        val id1 = 1;
+        val id2 = 2;
+
+        val actionInfo = SetInfo(name = testName, setId = id1)
+        val actionInfo2 = SetInfo(name = "${testName}+2", setId = id2)
+
+        setDao.insertSetInfo(actionInfo)
+        setDao.insertSetInfo(actionInfo2)
+
+        val set = setDao.getSetAsLiveData(id1).getOrAwaitValue()
+        assertThat(set.setInfo.name).isEqualTo(testName)
+    }
+
 
     @Test
     fun insertAction() = runBlockingTest {
@@ -50,7 +67,7 @@ class DatabaseTest {
 
         val testName = "test name"
         val actionInfo = SetInfo(name = testName, setId = setId)
-        setDao.addSetInfo(actionInfo)
+        setDao.insertSetInfo(actionInfo)
 
         val action1 = Action(1, setId, "action 1", 1, 1, true)
         val action2 = Action(2, setId, "action 2", 1, 1, true)
@@ -68,7 +85,7 @@ class DatabaseTest {
 
         val testName = "test name"
         val actionInfo = SetInfo(name = testName, setId = setId)
-        setDao.addSetInfo(actionInfo)
+        setDao.insertSetInfo(actionInfo)
 
         val action1 = Action(1, setId, "action 1", 1, 1, true)
         val action2 = Action(2, setId, "action 2", 1, 1, true)
@@ -94,8 +111,8 @@ class DatabaseTest {
         val actionInfo = SetInfo(name = testName)
         val actionInfo2 = SetInfo(name = "${testName}+2")
 
-        setDao.addSetInfo(actionInfo)
-        setDao.addSetInfo(actionInfo2)
+        setDao.insertSetInfo(actionInfo)
+        setDao.insertSetInfo(actionInfo2)
 
         val sets = setDao.getSets()
 
@@ -112,7 +129,7 @@ class DatabaseTest {
     fun updateSetInfo() = runBlockingTest {
         val testName = "test name"
         var actionInfo = SetInfo(name = testName)
-        setDao.addSetInfo(actionInfo)
+        setDao.insertSetInfo(actionInfo)
 
         actionInfo = setDao.getSets()[0].setInfo
 

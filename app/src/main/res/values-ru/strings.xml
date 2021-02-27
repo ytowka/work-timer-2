@@ -5,4 +5,6 @@
     <string name="delete">удалить</string>
     <string name="copy">скопировать</string>
     <string name="search">поиск</string>
+    <string name="set_preview">просмотр</string>
+    <string name="start">запустить</string>
 </resources>

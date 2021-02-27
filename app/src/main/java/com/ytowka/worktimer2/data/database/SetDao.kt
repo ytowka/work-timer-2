@@ -26,8 +26,9 @@ interface SetDao {
         deleteSetInfo(actionSet.setInfo)
         deleteActions(actionSet.setInfo.setId)
     }
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addSetInfo(setInfo: SetInfo)
+    suspend fun insertSetInfo(setInfo: SetInfo): Long
 
     @Query("DELETE FROM actions_table WHERE setId = :setId")
     suspend fun deleteActions(setId: Int)
@@ -37,4 +38,7 @@ interface SetDao {
 
     @Update
     suspend fun updateSetInfo(actionSet: SetInfo)
+
+    @Query("SELECT * FROM sets_table WHERE setId = :id")
+    suspend fun getSetInfo(id: Int): SetInfo
 }

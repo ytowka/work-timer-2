@@ -61,7 +61,7 @@ class TimersListFragment : Fragment() {
                     setToolbarEditTitle(setListAdapter.checkedItemsCount())
                 }
             }else{
-                val action = TimersListFragmentDirections.actionTimersListFragmentToSetPreviewFragment(it.setInfo.setId)
+                val action = TimersListFragmentDirections.previewSet(it.setInfo.setId)
                 findNavController().navigate(action)
             }
         }

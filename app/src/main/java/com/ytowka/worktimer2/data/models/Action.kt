@@ -16,6 +16,6 @@ data class Action(
     fun getStringDuration(): String{
         val minutes = duration / 60
         val seconds = duration % 60
-        return "${minutes}:${seconds}"
+        return "${if (minutes<10) "0${minutes}" else minutes}:${if (seconds<10) "0${seconds}" else seconds}"
     }
 }
