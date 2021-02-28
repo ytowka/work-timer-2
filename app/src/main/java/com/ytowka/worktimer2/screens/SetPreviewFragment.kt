@@ -1,10 +1,10 @@
 package com.ytowka.worktimer2.screens
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,7 +21,7 @@ class SetPreviewFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         viewmodel = ViewModelProvider(this).get(SetPreviewViewModel::class.java)
-        viewmodel.setId = args.setId
+        viewmodel.setup(args.setId)
         binding = FragmentSetPreviewBinding.inflate(inflater)
         return binding.root
     }
@@ -36,12 +36,14 @@ class SetPreviewFragment : Fragment() {
             binding.textSetNameTitle.text = it.setInfo.name
             binding.textTimeOnButton.text = it.getStringDuration()
             adapter.setup(it.actions)
+
+            binding.btnPStart.setOnClickListener{
+
+            }
         }
         binding.btnPEdit.setOnClickListener {
 
         }
-        binding.btnPStart.setOnClickListener{
 
-        }
     }
 }
