@@ -20,6 +20,9 @@ class SetPreviewViewModel @Inject constructor(private val repository: Repository
         }
     }
 
+    var started = false
+    private set
+
     private fun getSetId(): Int{
         if (setId != null) return setId!!
         else throw Exception("setId must be initialized")
@@ -32,12 +35,12 @@ class SetPreviewViewModel @Inject constructor(private val repository: Repository
 
     }
     fun start(){
-
+        started = true
     }
     fun pause(){
 
     }
     fun stop(){
-
+        started = false
     }
 }

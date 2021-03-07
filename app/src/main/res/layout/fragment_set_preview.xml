@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:transitionName="frame"
+    android:orientation="vertical"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".screens.SetPreviewFragment">
-
-
+    tools:context=".screens.SetPreviewFragment"
+    >
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/preview_toolbar"
@@ -18,86 +19,100 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:titleTextColor="?attr/colorOnPrimary"
-        app:title="@string/set_preview" />
+        app:title="@string/set_preview"
+        app:titleTextColor="?attr/colorOnPrimary" />
 
-    <TextView
-        android:id="@+id/text_set_name_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:elevation="2dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/preview_toolbar"
-        tools:text="set name" />
-
-    <androidx.cardview.widget.CardView
+    <androidx.constraintlayout.motion.widget.MotionLayout
+        app:layoutDescription="@xml/fragment_set_preview_scene"
+        android:id="@+id/motion_layout_preview"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_height="match_parent">
 
-        app:cardCornerRadius="25dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_p_start" >
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_p_action_list"
+        <TextView
+            android:id="@+id/text_set_name_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:elevation="2dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:transitionName="setName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="set name" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:listitem="@layout/item_preview_action" />
-    </androidx.cardview.widget.CardView>
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
 
-    <Button
-        android:id="@+id/btn_p_start"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        style="@style/RoundedButton50dp"
-        android:gravity="start|center_vertical"
-        android:paddingHorizontal="16dp"
-        android:text="@string/start"
-        app:layout_constraintEnd_toStartOf="@+id/btn_p_edit"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_set_name_title" />
-    <TextView
-        android:id="@+id/text_time_on_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        tools:text="00:00"
-        android:textAppearance="@style/TextAppearance.AppCompat.Button"
-        android:textColor="?attr/colorOnPrimary"
-        android:translationZ="2dp"
-        android:elevation="2dp"
-        app:layout_constraintBottom_toBottomOf="@+id/btn_p_start"
-        app:layout_constraintEnd_toEndOf="@+id/btn_p_start"
-        app:layout_constraintTop_toTopOf="@+id/btn_p_start" />
+            android:layout_marginBottom="8dp"
+            app:cardCornerRadius="25dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btn_p_start">
 
-    <ImageButton
-        android:id="@+id/btn_p_edit"
-        style="@style/RoundedButton50dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:minWidth="50dp"
-        android:minHeight="50dp"
-        android:src="@drawable/ic_edit"
-        android:backgroundTint="?attr/colorPrimary"
-        android:tint="?attr/colorOnPrimary"
-        android:paddingHorizontal="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_set_name_title" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_p_action_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:listitem="@layout/item_preview_action" />
+        </androidx.cardview.widget.CardView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <Button
+            android:id="@+id/btn_p_start"
+            style="@style/RoundedButton50dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="start|center_vertical"
+            android:paddingHorizontal="16dp"
+            android:text="@string/start"
+            app:layout_constraintEnd_toStartOf="@+id/btn_p_edit"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_set_name_title" />
+
+        <TextView
+            android:id="@+id/text_time_on_button"
+            android:transitionName="setTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:elevation="2dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Button"
+            android:textColor="?attr/colorOnPrimary"
+            android:translationZ="2dp"
+            app:layout_constraintBottom_toBottomOf="@+id/btn_p_start"
+            app:layout_constraintEnd_toEndOf="@+id/btn_p_start"
+            app:layout_constraintTop_toTopOf="@+id/btn_p_start"
+            tools:text="00:00" />
+
+        <ImageButton
+            android:id="@+id/btn_p_edit"
+            android:transitionName="edit"
+            style="@style/RoundedButton50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="?attr/colorPrimary"
+            android:minWidth="50dp"
+            android:minHeight="50dp"
+            android:paddingHorizontal="12dp"
+            android:src="@drawable/ic_edit"
+            android:tint="?attr/colorOnPrimary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_set_name_title" />
+
+    </androidx.constraintlayout.motion.widget.MotionLayout>
+</LinearLayout>
+

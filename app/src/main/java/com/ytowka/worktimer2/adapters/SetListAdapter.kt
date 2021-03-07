@@ -1,6 +1,5 @@
 package com.ytowka.worktimer2.adapters
 
-import android.graphics.PorterDuff
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -10,7 +9,7 @@ import com.ytowka.worktimer2.R
 import com.ytowka.worktimer2.data.models.ActionSet
 import com.ytowka.worktimer2.databinding.ItemSetBinding
 
-class SetListAdapter( var onItemClicked: (ActionSet) -> Unit = {}, var onItemLongClicked: (ActionSet) -> Unit = {}) : RecyclerView.Adapter<SetListAdapter.SetViewHolder>() {
+class SetListAdapter( var onItemClicked: (ActionSet, ItemSetBinding) -> Unit = {_,_->}, var onItemLongClicked: (ActionSet) -> Unit = {}) : RecyclerView.Adapter<SetListAdapter.SetViewHolder>() {
     private var list = listOf<ActionSet>()
     private val checkedList = mutableListOf<ActionSet>()
 
@@ -61,10 +60,6 @@ class SetListAdapter( var onItemClicked: (ActionSet) -> Unit = {}, var onItemLon
         }else {
             checkedList.add(actionSet)
         }
-        /*val debugList = "list: ["+list.joinToString {
-            it.setInfo.setId.toString()
-        }+"]"
-        Log.i("debug","selected ${actionSet.setInfo.setId} "+debugList)*/
         notifyItemChanged(id)
     }
     fun checkedItemsCount(): Int = checkedList.size
@@ -82,8 +77,6 @@ class SetListAdapter( var onItemClicked: (ActionSet) -> Unit = {}, var onItemLon
         
         var checked = false
         set(value) {
-            //binding.itemCardLayout.background.setTint(binding.root.resources.getColor(R.color.cardViewSelected))
-            //binding.itemCardLayout.background.setColorFilter(binding.root.resources.getColor(R.color.cardViewSelected),PorterDuff.Mode.ADD)
             if(value){
                 binding.itemCardLayout.setBackgroundColor(binding.root.resources.getColor(R.color.cardViewSelected))
             }else{
@@ -95,7 +88,7 @@ class SetListAdapter( var onItemClicked: (ActionSet) -> Unit = {}, var onItemLon
 
         init {
             binding.cardSetInfo.setOnClickListener {
-                onItemClicked(actionSet)
+                onItemClicked(actionSet, binding)
             }
             binding.cardSetInfo.setOnLongClickListener {
                 onItemLongClicked(actionSet)
@@ -106,6 +99,12 @@ class SetListAdapter( var onItemClicked: (ActionSet) -> Unit = {}, var onItemLon
             this.actionSet = actionSet
             binding.textApproximateTime.text = actionSet.getStringDuration()
             binding.textSetName.text = actionSet.setInfo.name
+
+
+            binding.textApproximateTime.transitionName = "time${actionSet.setInfo.setId}"
+            binding.cardSetInfo.transitionName = "frame${actionSet.setInfo.setId}"
+            binding.textSetName.transitionName = "name${actionSet.setInfo.setId}"
+
         }
     }
 }

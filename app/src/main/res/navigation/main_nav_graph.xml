@@ -12,7 +12,8 @@
         tools:layout="@layout/fragment_timers_list" >
         <action
             android:id="@+id/preview_set"
-            app:destination="@id/setPreviewFragment" />
+            app:destination="@id/setPreviewFragment"
+            />
         <action
             android:id="@+id/edit_set"
             app:destination="@id/editSetFragment" />

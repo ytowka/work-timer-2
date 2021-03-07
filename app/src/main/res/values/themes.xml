@@ -21,16 +21,18 @@
 
     <style name="RoundedButton50dp">
         <item name="android:background">@drawable/shape_rounded</item>
-        <item name="android:backgroundTint">@color/design_default_color_primary</item>
-        <item name="android:tint">@color/design_default_color_on_primary</item>
+        <item name="android:backgroundTint">?attr/colorPrimary</item>
+        <item name="android:tint">?attr/colorOnPrimary</item>
         <item name="minHeight">50dp</item>
         <item name="maxHeight">50dp</item>
     </style>
     <style name="RoundedButton30dp">
         <item name="android:background">@drawable/shape_rounded</item>
-        <item name="android:backgroundTint">@color/design_default_color_primary</item>
-        <item name="android:tint">@color/design_default_color_on_primary</item>
+        <item name="android:backgroundTint">?attr/colorPrimary</item>
+        <item name="android:tint">?attr/colorOnPrimary</item>
         <item name="minHeight">30dp</item>
         <item name="maxHeight">30dp</item>
     </style>
+
+    <color name="progressBg">@color/light_darker_bg</color>
 </resources>

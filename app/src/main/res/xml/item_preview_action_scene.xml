@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+    <Transition
+        motion:constraintSetEnd="@+id/end"
+        motion:constraintSetStart="@id/start"
+        motion:duration="200"
+        motion:motionInterpolator="easeInOut">
+    </Transition>
+
+    <ConstraintSet android:id="@+id/start" />
+
+    <ConstraintSet android:id="@+id/end">
+        <Constraint
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            motion:layout_constraintBottom_toTopOf="@+id/divider2"
+            motion:layout_constraintTop_toTopOf="parent"
+            motion:layout_constraintStart_toStartOf="parent"
+            android:id="@+id/progressBar"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintVertical_bias="0.0"
+            motion:layout_constraintHorizontal_bias="0.0" />
+        <Constraint
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            motion:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="0dp"
+            android:id="@+id/image_p_color"
+            motion:layout_constraintEnd_toStartOf="parent"
+            android:layout_marginEnd="2dp"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="0dp" />
+        <Constraint
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:id="@+id/divider2"
+            motion:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="100dp" />
+        <Constraint
+            android:layout_height="wrap_content"
+            motion:layout_constraintTop_toTopOf="@+id/image_p_color"
+            android:layout_width="wrap_content"
+            motion:layout_constraintStart_toEndOf="@+id/image_p_color"
+            android:layout_marginStart="16dp"
+            android:id="@+id/text_p_action_name"
+            motion:layout_constraintBottom_toBottomOf="@+id/image_p_color" />
+    </ConstraintSet>
+</MotionScene>

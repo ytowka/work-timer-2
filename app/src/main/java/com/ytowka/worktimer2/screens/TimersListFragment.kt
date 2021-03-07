@@ -1,13 +1,13 @@
 package com.ytowka.worktimer2.screens
 
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ytowka.worktimer2.R
@@ -29,7 +29,6 @@ class TimersListFragment : Fragment() {
             if(lowerCaseText.contains(lowCaseQuery)){
                 filteredList.add(it)
             }
-            Log.i("debug", "filter pass")
         }
         return filteredList
     }
@@ -48,30 +47,45 @@ class TimersListFragment : Fragment() {
         return binding.root
     }
 
-    override fun onStart() {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         super.onStart()
-
         setListAdapter = SetListAdapter()
-        setListAdapter.onItemClicked = {
+
+        setListAdapter.onItemClicked = { set, binding ->
             if(viewModel.selectingMode){
-                setListAdapter.checkItem(it)
+                setListAdapter.checkItem(set)
                 if(setListAdapter.checkedItemsCount() == 0){
                     setEditingMode(false)
                 }else{
                     setToolbarEditTitle(setListAdapter.checkedItemsCount())
                 }
             }else{
-                val action = TimersListFragmentDirections.previewSet(it.setInfo.setId)
-                findNavController().navigate(action)
+                val setId = set.setInfo.setId
+                val extras = FragmentNavigatorExtras(
+                        binding.textSetName to "name$setId",
+                        binding.textApproximateTime to "time$setId",
+                        binding.cardSetInfo to "frame$setId",
+                )
+                val action = TimersListFragmentDirections.previewSet(set.setInfo.setId)
+                findNavController().navigate(action,extras)
             }
         }
         setListAdapter.onItemLongClicked = {
             setEditingMode(true)
             setListAdapter.checkItem(it,true)
         }
-        binding.listSets.layoutManager = LinearLayoutManager(context)
-        binding.listSets.adapter = setListAdapter
+        binding.listSets.apply {
+            adapter = setListAdapter
+            layoutManager = LinearLayoutManager(context)
+            postponeEnterTransition()
+            viewTreeObserver.addOnPreDrawListener {
+                startPostponedEnterTransition()
+                true
+            }
+        }
 
+        binding.toolbar.menu.clear()
         binding.toolbar.inflateMenu(R.menu.setlist)
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
@@ -103,9 +117,11 @@ class TimersListFragment : Fragment() {
             }
         })
         binding.FabAddSet.setOnClickListener {
-            viewModel.addSetItem()
+            val extras = FragmentNavigatorExtras(binding.FabAddSet to "edit")
+            val action = TimersListFragmentDirections.editSet(-1)
+            findNavController().navigate(action,extras)
         }
-        viewModel.getSetList().observe(this) {
+        viewModel.getSetList().observe(viewLifecycleOwner) {
             if(!viewModel.selectingMode){
                 setListAdapter.update(it)
             }
