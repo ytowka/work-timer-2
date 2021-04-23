@@ -8,4 +8,10 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="set_preview">set preview</string>
     <string name="start">start</string>
+    <string name="pause">pause</string>
+    <string name="finish">finish</string>
+    <string name="timer_exit_confirmation">exit and stop the timer?</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+    <string name="exit">exit</string>
 </resources>

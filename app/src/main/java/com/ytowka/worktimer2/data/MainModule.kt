@@ -1,11 +1,10 @@
 package com.ytowka.worktimer2.data
 
 import android.content.Context
-import androidx.room.Room
+import com.ytowka.worktimer2.R
 import com.ytowka.worktimer2.data.database.ActionDao
-import com.ytowka.worktimer2.data.database.LocalDatabase
 import com.ytowka.worktimer2.data.database.SetDao
-import com.ytowka.worktimer2.utils.Consts.Companion.DB_NAME
+import com.ytowka.worktimer2.data.models.Action
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,23 +21,9 @@ object MainModule {
     fun provideRepository(@ApplicationContext context: Context, setDao: SetDao, actionDao: ActionDao): Repository{
         return LocalRepository(context, setDao, actionDao)
     }
-
     @Provides
     @Singleton
-    fun provideSetDao(database: LocalDatabase): SetDao{
-        return database.getSetDao()
+    fun provideFinishAction(@ApplicationContext context: Context): Action{
+        return Action(context.getString(R.string.finish),1,context.getColor(R.color.white),false)
     }
-
-    @Provides
-    @Singleton
-    fun provideActionDao(database: LocalDatabase): ActionDao{
-        return database.getActionDao()
-    }
-
-    @Provides
-    @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): LocalDatabase{
-        return Room.databaseBuilder(context,LocalDatabase::class.java,DB_NAME).build()
-    }
-
 }

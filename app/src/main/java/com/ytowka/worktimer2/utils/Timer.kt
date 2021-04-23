@@ -1,92 +1,115 @@
 package com.ytowka.worktimer2.utils
 
+import android.app.Notification
+import android.util.Log
 import kotlinx.coroutines.*
 import java.util.concurrent.TimeUnit
+import kotlin.system.measureTimeMillis
 
-class Timer(duration: Long,private val reverseCountDown: Boolean,timeUnit: TimeUnit = TimeUnit.SECONDS){
-    companion object{
+open class Timer(duration: Long,val reverseCountDown: Boolean = true, timeUnit: TimeUnit = TimeUnit.SECONDS) {
+    companion object {
         const val msStep = 10L
     }
+
     private val msDuration = timeUnit.toMillis(duration)
 
     var started = false
-    private set
+        private set
 
     var timerJob: Job? = null
-    private set
+        private set
     var paused = false
-    private set
+        private set
 
     var msPassed = 0L
+    private set
 
-    fun start(onFinished: ()->Unit){
+    private var delta = msStep
+
+    var onFinished = {}
+
+
+    fun start(onFinished: () -> Unit = this.onFinished) {
+        this.onFinished = onFinished
         timerJob = GlobalScope.launch {
-            started = true
-            if (reverseCountDown){
-                msPassed = msDuration
-                while (msPassed >= 0){
-                    if(!paused){
-                        delay(msStep)
-                        callbackList.forEach {
-                            it.onTimerUpdate(msStep,msPassed)
-                        }
-                        msPassed -= msStep
-                    }
+            try {
+                started = true
+                if (reverseCountDown) {
+                    msPassed = msDuration
 
-                }
-                withContext(Dispatchers.Main){
-                    onFinished()
-                }
-                stop()
-            }else{
-                while (msPassed <= msDuration){
-                    if(!paused){
-                        delay(msStep)
-                        callbackList.forEach {
-                            it.onTimerUpdate(msStep, msPassed)
+                    while (msPassed >= 0 && isActive) {
+                        delta = measureTimeMillis {
+                            if (!paused) {
+                                delay(msStep)
+                                withContext(Dispatchers.Main){
+                                    callbackList.forEach {
+                                        it.onTimerUpdate(delta, msPassed)
+                                    }
+                                }
+                                msPassed -= delta
+                            }
                         }
-                        msPassed += msStep
+                    }
+                } else {
+                    while (isActive) {
+                        delta = measureTimeMillis {
+                            if (!paused) {
+                                delay(msStep)
+                                withContext(Dispatchers.Main){
+                                    callbackList.forEach {
+                                        it.onTimerUpdate(delta, msPassed)
+                                    }
+                                }
+                                msPassed += delta
+                            }
+                        }
                     }
                 }
-                withContext(Dispatchers.Main){
+            } finally {
+                withContext(Dispatchers.Main) {
                     onFinished()
                 }
-                stop()
+                stop(true,true)
             }
         }
     }
-    fun pause(){
+
+    fun pause() {
         paused = true
     }
-    fun resume(){
+
+    fun resume() {
         paused = false
     }
-    fun stop(clearCallbacks: Boolean = false){
-        if(clearCallbacks) clearCallBacks()
+
+    fun stop(isSkipped: Boolean = false, clearCallbacks: Boolean = false) {
+        if (clearCallbacks) clearCallBacks()
         started = false
+        paused = false
         timerJob?.cancel()
         msPassed = 0
+        if(!isSkipped) onFinished()
     }
 
     private val callbackList = mutableListOf<TimerCallback>()
-    fun addCallback(timeUnit: TimeUnit,step: Long,callback: (TimeUnit: TimeUnit, timeState: Long)->Unit){
-        callbackList.add(TimerCallback(timeUnit,step,callback))
+
+    fun addCallback(step: Long, callback: (timeState: Long) -> Unit) {
+        callbackList.add(TimerCallback(step, callback))
     }
 
-    fun clearCallBacks(){
+    fun clearCallBacks() {
         callbackList.clear()
     }
-    private class TimerCallback(private val timeUnit: TimeUnit,private val step: Long, private val callback: (timeUnit: TimeUnit, timeState: Long) -> Unit){
-        var msDelta = 0L
+}
+//default time unit is milliseconds
+class TimerCallback(private val step: Long, private val callback: (timeState: Long) -> Unit) {
+    var msDelta = 0L
 
-        suspend fun onTimerUpdate(stepMs: Long, timeState: Long){
-            msDelta += stepMs
-            if(msDelta >= timeUnit.toMillis(step)){
-                msDelta -= timeUnit.toMillis(step)
-                withContext(Dispatchers.Main){
-                    callback(timeUnit, timeUnit.convert(timeState, TimeUnit.MILLISECONDS))
-                }
-            }
+fun onTimerUpdate(stepMs: Long, timeState: Long) {
+        msDelta += stepMs
+        if (msDelta >= step) {
+            msDelta -= step
+                callback(timeState)
         }
     }
 }

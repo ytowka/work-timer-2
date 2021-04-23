@@ -4,15 +4,15 @@
     xmlns:motion="http://schemas.android.com/apk/res-auto">
 
     <Transition
-        motion:constraintSetEnd="@+id/end"
-        motion:constraintSetStart="@id/start"
+        motion:constraintSetEnd="@+id/endCS"
+        motion:constraintSetStart="@id/startCS"
         motion:duration="200"
         motion:motionInterpolator="easeInOut">
     </Transition>
 
-    <ConstraintSet android:id="@+id/start" />
+    <ConstraintSet android:id="@+id/startCS" />
 
-    <ConstraintSet android:id="@+id/end">
+    <ConstraintSet android:id="@+id/endCS">
         <Constraint
             android:layout_width="0dp"
             android:layout_height="0dp"

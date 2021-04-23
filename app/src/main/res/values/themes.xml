@@ -11,6 +11,7 @@
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
+        <!--<item name="dialogTheme">@style/roundedDialog</item>-->
         <!-- Customize your theme here. -->
     </style>
     <style name="CardView.rounded" parent="CardView">
@@ -18,21 +19,26 @@
     </style>
     <color name="cardViewSelected">#979DC5</color>
     <color name="cardViewBg">@color/cardview_light_background</color>
-
+    <color name="colorOnSurface">@color/on_light</color>
     <style name="RoundedButton50dp">
-        <item name="android:background">@drawable/shape_rounded</item>
+        <item name="android:background">@drawable/shape_rounded25</item>
         <item name="android:backgroundTint">?attr/colorPrimary</item>
         <item name="android:tint">?attr/colorOnPrimary</item>
         <item name="minHeight">50dp</item>
         <item name="maxHeight">50dp</item>
     </style>
     <style name="RoundedButton30dp">
-        <item name="android:background">@drawable/shape_rounded</item>
+        <item name="android:background">@drawable/shape_rounded25</item>
         <item name="android:backgroundTint">?attr/colorPrimary</item>
         <item name="android:tint">?attr/colorOnPrimary</item>
         <item name="minHeight">30dp</item>
         <item name="maxHeight">30dp</item>
     </style>
 
+    <style name="roundedDialog" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+        <item name="background">@drawable/dialog_bg</item>
+        <item name="android:colorPrimary">@color/on_light</item>
+        <item name="android:textColor">@color/on_light</item>
+    </style>
     <color name="progressBg">@color/light_darker_bg</color>
 </resources>

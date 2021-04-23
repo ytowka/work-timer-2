@@ -119,6 +119,7 @@ class TimersListFragment : Fragment() {
         binding.FabAddSet.setOnClickListener {
             val extras = FragmentNavigatorExtras(binding.FabAddSet to "edit")
             val action = TimersListFragmentDirections.editSet(-1)
+            viewModel.addSetItem()
             findNavController().navigate(action,extras)
         }
         viewModel.getSetList().observe(viewLifecycleOwner) {

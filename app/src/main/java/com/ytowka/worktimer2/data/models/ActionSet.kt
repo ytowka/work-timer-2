@@ -30,4 +30,9 @@ class ActionSet(
     override fun hashCode(): Int {
         return setInfo.setId
     }
+    fun withFinishAction(action: Action): ActionSet{
+        val newList = actions.toMutableList()
+        newList.add(action)
+        return ActionSet(setInfo,newList)
+    }
 }

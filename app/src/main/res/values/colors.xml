@@ -15,4 +15,6 @@
 
     <color name="dark_lighter_bg">#595959</color>
     <color name="light_darker_bg">#DADADA</color>
+    <color name="current_action_bg">#59748C</color>
+
 </resources>

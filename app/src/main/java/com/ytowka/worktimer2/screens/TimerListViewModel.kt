@@ -53,7 +53,7 @@ class TimerListViewModel @Inject constructor(private val repository: Repository)
                 val color = Color.rgb(r,g,b)
                 Log.i("debug","color: $r $g $b")
 
-                val action = Action(name = "action ${Random.nextInt(0,1000)}",duration = Random.nextInt(5,1000),color = color,exactTimeDefine = Random.nextBoolean(),setId = setId.toInt())
+                val action = Action(name = "action ${Random.nextInt(0,1000)}",duration = Random.nextInt(5,100),color = color,exactTimeDefine = Random.nextBoolean(),setId = setId.toInt())
                 repository.insertAction(action)
                 Log.i("debug","also added action to ${setId}")
             }

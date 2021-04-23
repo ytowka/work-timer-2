@@ -23,10 +23,10 @@
         app:titleTextColor="?attr/colorOnPrimary" />
 
     <androidx.constraintlayout.motion.widget.MotionLayout
-        app:layoutDescription="@xml/fragment_set_preview_scene"
         android:id="@+id/motion_layout_preview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:layoutDescription="@xml/fragment_set_preview_scene">
 
 
         <TextView
@@ -45,19 +45,98 @@
             tools:text="set name" />
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/card_current_action"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            app:cardCornerRadius="25dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btn_p_start">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ProgressBar
+                    android:id="@+id/progressBar2"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+
+                    android:layout_height="0dp"
+                    android:progressDrawable="@drawable/progress_bar_full"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:progress="5" />
+
+                <TextView
+                    android:id="@+id/current_action_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/shape_rounded25"
+                    android:backgroundTint="@color/design_default_color_primary"
+                    android:padding="4dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="name" />
+
+                <TextView
+                    android:id="@+id/current_action_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:background="@drawable/shape_rounded25"
+                    android:backgroundTint="@color/design_default_color_primary"
+                    android:minHeight="40dp"
+                    android:minWidth="70dp"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/progressBar2"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="100:10" />
+
+                <ImageButton
+                    android:id="@+id/pause_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/shape_rounded25"
+
+                    android:backgroundTint="@color/design_default_color_primary"
+                    android:minWidth="40dp"
+                    android:minHeight="40dp"
+                    android:src="@drawable/ic_pause"
+                    android:tint="@color/design_default_color_on_primary"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/current_action_time"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
             android:id="@+id/cardView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
 
-            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
             app:cardCornerRadius="25dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btn_p_start">
+            app:layout_constraintTop_toBottomOf="@+id/card_current_action">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_p_action_list"
@@ -83,13 +162,13 @@
 
         <TextView
             android:id="@+id/text_time_on_button"
-            android:transitionName="setTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:elevation="2dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Button"
             android:textColor="?attr/colorOnPrimary"
+            android:transitionName="setTime"
             android:translationZ="2dp"
             app:layout_constraintBottom_toBottomOf="@+id/btn_p_start"
             app:layout_constraintEnd_toEndOf="@+id/btn_p_start"
@@ -98,7 +177,6 @@
 
         <ImageButton
             android:id="@+id/btn_p_edit"
-            android:transitionName="edit"
             style="@style/RoundedButton50dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -110,6 +188,7 @@
             android:paddingHorizontal="12dp"
             android:src="@drawable/ic_edit"
             android:tint="?attr/colorOnPrimary"
+            android:transitionName="edit"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/text_set_name_title" />
 

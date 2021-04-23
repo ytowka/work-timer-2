@@ -23,6 +23,8 @@ class EditSetFragment : Fragment() {
                               savedInstanceState: Bundle?): View {
         binding = FragmentEditSetBinding.inflate(inflater)
         viewModel = ViewModelProvider(this).get(EditSetViewModel::class.java)
+
+        //if this fragment opened for new action set, setId = -1
         viewModel.setId = args.setId
         return binding.root
     }
