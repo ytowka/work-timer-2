@@ -69,8 +69,8 @@ class DatabaseTest {
         val actionInfo = SetInfo(name = testName, setId = setId)
         setDao.insertSetInfo(actionInfo)
 
-        val action1 = Action(1, setId, "action 1", 1, 1, true)
-        val action2 = Action(2, setId, "action 2", 1, 1, true)
+        val action1 = Action( "action 1", 1, 1, true,1, setId)
+        val action2 = Action( "action 2", 1, 1, true,2, setId,)
 
         actionDao.insertAction(action1)
         actionDao.insertAction(action2)
@@ -87,8 +87,8 @@ class DatabaseTest {
         val actionInfo = SetInfo(name = testName, setId = setId)
         setDao.insertSetInfo(actionInfo)
 
-        val action1 = Action(1, setId, "action 1", 1, 1, true)
-        val action2 = Action(2, setId, "action 2", 1, 1, true)
+        val action1 = Action( "action 1", 1, 1, true, 1, setId,)
+        val action2 = Action( "action 2", 1, 1, true, 2, setId,)
 
         actionDao.insertAction(action1)
         actionDao.insertAction(action2)

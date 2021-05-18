@@ -13,4 +13,9 @@
     <string name="yes">да</string>
     <string name="no">нет</string>
     <string name="exit">выйти</string>
+    <string name="timer_started">таймер запущен</string>
+    <string name="rest">отдых</string>
+    <string name="training">подход</string>
+    <string name="new_action">"новое действие: "</string>
+    <string name="current_action">текущее действие</string>
 </resources>

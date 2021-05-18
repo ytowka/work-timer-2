@@ -14,4 +14,10 @@
     <string name="yes">yes</string>
     <string name="no">no</string>
     <string name="exit">exit</string>
+    <string name="timer_started">timer is started</string>
+    <string name="rest">rest</string>
+    <string name="training">training</string>
+    <string name="new_action">"new action: "</string>
+    <string name="current_action">current action</string>
+    <!-- TODO: Remove or change this placeholder text -->
 </resources>

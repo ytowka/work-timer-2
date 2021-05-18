@@ -21,7 +21,6 @@ interface SetDao {
     @Query("SELECT * FROM sets_table WHERE setId = :id")
     fun getSetAsLiveData(id: Int): LiveData<ActionSet>
 
-
     suspend fun deleteSet(actionSet: ActionSet){
         deleteSetInfo(actionSet.setInfo)
         deleteActions(actionSet.setInfo.setId)

@@ -27,6 +27,10 @@ object RoomModule {
 
     @Provides
     @Singleton
+    fun provideActionTypesDao(database: LocalDatabase) = database.getActionTypesDao()
+
+    @Provides
+    @Singleton
     fun provideDatabase(@ApplicationContext context: Context): LocalDatabase{
         return Room.databaseBuilder(context,LocalDatabase::class.java, C.DB_NAME).build()
     }

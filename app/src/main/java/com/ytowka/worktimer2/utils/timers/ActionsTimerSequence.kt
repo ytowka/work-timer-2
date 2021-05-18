@@ -1,11 +1,12 @@
-package com.ytowka.worktimer2.utils
+package com.ytowka.worktimer2.utils.timers
 
-import android.util.Log
 import com.ytowka.worktimer2.data.models.Action
 import com.ytowka.worktimer2.data.models.ActionSet
+import com.ytowka.worktimer2.utils.timers.coroutine.CoroutineActionTimer
+import kotlin.reflect.KClass
 
-class ActionsTimerSequence(private val actionSet: ActionSet){
-    var onActionFinished: (ActionTimer) -> Unit = {_->}
+class ActionsTimerSequence(val actionSet: ActionSet, TimerImplementationType: KClass<ActionTimer> = CoroutineActionTimer::class as KClass<ActionTimer>){
+    var onActionFinished: (ActionTimer) -> Unit = { _->}
     var onSequenceFinish = {}
 
     var paused = false
@@ -21,11 +22,17 @@ class ActionsTimerSequence(private val actionSet: ActionSet){
     fun currAction() = actionSet.actions[currActionIndex]
     fun currentTimer() = timers[currActionIndex]
 
-    private val timers = List(actionSet.actions.size){ index ->
-        val timer = ActionTimer(actionSet.actions[index])
-        return@List timer
-    }
+    private val timers: List<ActionTimer>
     init {
+        if(TimerImplementationType == CoroutineActionTimer::class){
+            timers = List(actionSet.actions.size){ index ->
+                return@List CoroutineActionTimer(actionSet.actions[index])
+            }
+        }else{
+            timers = List(actionSet.actions.size){ index ->
+                return@List CoroutineActionTimer(actionSet.actions[index])
+            }
+        }
         timers.forEachIndexed{id,timer ->
             timer.onFinished = {
                 if (id == timers.lastIndex){
@@ -57,8 +64,14 @@ class ActionsTimerSequence(private val actionSet: ActionSet){
 
         timers[currActionIndex].stop(true, true)
         currActionIndex = id
-        onActionFinished(timers[id])
         timers[id].start()
+        onActionFinished(timers[id])
+    }
+    fun jumpToAction(actionPos: Int){
+        timers[currActionIndex].stop(true, true)
+        currActionIndex = actionPos
+        onActionFinished(timers[actionPos])
+        timers[actionPos].start()
     }
     fun resume(){
         paused = false

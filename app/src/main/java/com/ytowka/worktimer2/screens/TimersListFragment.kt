@@ -21,12 +21,12 @@ import java.util.*
 @AndroidEntryPoint
 class TimersListFragment : Fragment() {
 
-    fun List<ActionSet>.filterActions(query: String): List<ActionSet>{
+    fun List<ActionSet>.filterActions(query: String): List<ActionSet> {
         val lowCaseQuery = query.toLowerCase(Locale.ROOT)
         val filteredList = mutableListOf<ActionSet>()
         forEach {
             val lowerCaseText = it.setInfo.name.toLowerCase(Locale.ROOT)
-            if(lowerCaseText.contains(lowCaseQuery)){
+            if (lowerCaseText.contains(lowCaseQuery)) {
                 filteredList.add(it)
             }
         }
@@ -39,8 +39,8 @@ class TimersListFragment : Fragment() {
     private lateinit var setListAdapter: SetListAdapter
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         binding = FragmentTimersListBinding.inflate(inflater)
         viewModel = ViewModelProvider(this).get(TimerListViewModel::class.java)
@@ -51,29 +51,28 @@ class TimersListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         super.onStart()
         setListAdapter = SetListAdapter()
-
         setListAdapter.onItemClicked = { set, binding ->
-            if(viewModel.selectingMode){
+            if (viewModel.selectingMode) {
                 setListAdapter.checkItem(set)
-                if(setListAdapter.checkedItemsCount() == 0){
+                if (setListAdapter.checkedItemsCount() == 0) {
                     setEditingMode(false)
-                }else{
+                } else {
                     setToolbarEditTitle(setListAdapter.checkedItemsCount())
                 }
-            }else{
+            } else {
                 val setId = set.setInfo.setId
                 val extras = FragmentNavigatorExtras(
-                        binding.textSetName to "name$setId",
-                        binding.textApproximateTime to "time$setId",
-                        binding.cardSetInfo to "frame$setId",
+                    binding.textSetName to "name$setId",
+                    binding.textApproximateTime to "time$setId",
+                    binding.cardSetInfo to "frame$setId",
                 )
-                val action = TimersListFragmentDirections.previewSet(set.setInfo.setId)
-                findNavController().navigate(action,extras)
+                val action = TimersListFragmentDirections.previewSet(set.setInfo.setId, set.setInfo.name)
+                findNavController().navigate(action, extras)
             }
         }
         setListAdapter.onItemLongClicked = {
             setEditingMode(true)
-            setListAdapter.checkItem(it,true)
+            setListAdapter.checkItem(it, true)
         }
         binding.listSets.apply {
             adapter = setListAdapter
@@ -104,14 +103,16 @@ class TimersListFragment : Fragment() {
         }
         val searchItem = binding.toolbar.menu.findItem(R.id.app_bar_search)
         val searchView = searchItem.actionView as SearchView
+
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(p0: String?): Boolean {
-
                 return false
             }
+
             override fun onQueryTextChange(p0: String?): Boolean {
                 val list = viewModel.getSetList().value
-                if(list != null) setListAdapter.update(list.filterActions(p0?: ""))
+                if (list != null) setListAdapter.update(list.filterActions(p0 ?: ""))
                 binding.listSets.scrollToPosition(0)
                 return true
             }
@@ -120,22 +121,23 @@ class TimersListFragment : Fragment() {
             val extras = FragmentNavigatorExtras(binding.FabAddSet to "edit")
             val action = TimersListFragmentDirections.editSet(-1)
             viewModel.addSetItem()
-            findNavController().navigate(action,extras)
+            findNavController().navigate(action, extras)
         }
         viewModel.getSetList().observe(viewLifecycleOwner) {
-            if(!viewModel.selectingMode){
+            if (!viewModel.selectingMode) {
                 setListAdapter.update(it)
             }
         }
     }
-    private fun setEditingMode(editingMode: Boolean){
+
+    private fun setEditingMode(editingMode: Boolean) {
         binding.toolbar.menu.clear()
-        if(editingMode){
+        if (editingMode) {
             setToolbarEditTitle(1)
             binding.toolbar.inflateMenu(R.menu.setlist_edit)
             binding.FabAddSet.animate().translationX(350f)
             viewModel.selectingMode = true
-        }else{
+        } else {
             binding.toolbar.title = resources.getString(R.string.app_name)
             binding.toolbar.inflateMenu(R.menu.setlist)
             viewModel.selectingMode = false
@@ -143,7 +145,10 @@ class TimersListFragment : Fragment() {
             setListAdapter.unCheckAll()
         }
     }
-    private fun setToolbarEditTitle(selectedCount: Int){
-        binding.toolbar.title = resources.getString(R.string.selected)+": "+selectedCount
+
+    private fun setToolbarEditTitle(selectedCount: Int) {
+        binding.toolbar.title = resources.getString(R.string.selected) + ": " + selectedCount
     }
+
+
 }

@@ -1,33 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+<androidx.constraintlayout.motion.widget.MotionLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:transitionName="frame"
-    android:orientation="vertical"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:transitionName="frame"
+    tools:context=".screens.SetPreviewFragment"
+    android:id="@+id/motion_layout_preview"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".screens.SetPreviewFragment"
-    >
+    app:layoutDescription="@xml/fragment_set_preview_scene">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/preview_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:title="@string/set_preview"
-        app:titleTextColor="?attr/colorOnPrimary" />
 
-    <androidx.constraintlayout.motion.widget.MotionLayout
-        android:id="@+id/motion_layout_preview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layoutDescription="@xml/fragment_set_preview_scene">
-
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/preview_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="?attr/actionBarTheme"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:title="@string/set_preview"
+            app:titleTextColor="?attr/colorOnPrimary" />
 
         <TextView
             android:id="@+id/text_set_name_title"
@@ -41,7 +38,7 @@
             android:transitionName="setName"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/preview_toolbar"
             tools:text="set name" />
 
         <androidx.cardview.widget.CardView
@@ -193,5 +190,4 @@
             app:layout_constraintTop_toBottomOf="@+id/text_set_name_title" />
 
     </androidx.constraintlayout.motion.widget.MotionLayout>
-</LinearLayout>
 

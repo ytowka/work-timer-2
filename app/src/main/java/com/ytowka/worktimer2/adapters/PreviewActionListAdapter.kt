@@ -1,6 +1,5 @@
 package com.ytowka.worktimer2.adapters
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +12,6 @@ import com.ytowka.worktimer2.utils.C.Companion.TAG
 
 class PreviewActionListAdapter(val onClick: (Action) -> Unit) : RecyclerView.Adapter<PreviewActionListAdapter.PreviewActionViewHolder>(){
     private var actionList = listOf<Action>()
-    private val viewHolderMap = mutableMapOf<Action,PreviewActionViewHolder>()
 
     var currentAction: Action? = null
     set(value) {
@@ -51,11 +49,10 @@ class PreviewActionListAdapter(val onClick: (Action) -> Unit) : RecyclerView.Ada
             bg?.setTint(action.color)
             binding.imagePColor.background = bg
 
-           // Log.i("debug",currentAction?.name ?: "null" + " action: ${action.name}")
+
             if(action == currentAction){
                 //binding.layout.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(binding.root.context, R.color.current_action_bg))
                 binding.layout.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.current_action_bg))
-                //Log.i("debug","change bg color")
             }else{
                 binding.layout.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.cardViewBg))
                 //binding.layout.backgroundTintList = null

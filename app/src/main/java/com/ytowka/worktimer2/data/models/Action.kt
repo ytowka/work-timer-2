@@ -11,7 +11,6 @@ data class Action(
     var exactTimeDefine: Boolean,
     @PrimaryKey(autoGenerate = true) val actionId: Int = 0,
     val setId: Int = 0
-
 )
 {
     fun getStringDuration(): String{
@@ -36,4 +35,13 @@ data class Action(
         result = 31 * result + setId
         return result
     }
+}
+enum class VocalizeSteps(stepSeconds: Int){
+    NOT_VOCALIZE(0),
+    EVERY_5(5),
+    EVERY_10(10),
+    EVERY_15(15),
+    EVERY_30(30),
+    EVERY_60(60),
+    EVERY_3M(180)
 }

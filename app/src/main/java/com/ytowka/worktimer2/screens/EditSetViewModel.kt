@@ -33,6 +33,9 @@ class EditSetViewModel @Inject constructor(private val repository: Repository) :
             repository.updateAction(action)
         }
     }
+    fun deleteCreatedSet(){
+
+    }
     fun updateName(name: String){
         viewModelScope.launch {
             val newSetInfo = repository.getSetInfo(getSetId())

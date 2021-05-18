@@ -3,12 +3,14 @@ package com.ytowka.worktimer2.data
 import android.content.Context
 import androidx.lifecycle.LiveData
 import com.ytowka.worktimer2.data.database.ActionDao
+import com.ytowka.worktimer2.data.database.ActionTypesDao
 import com.ytowka.worktimer2.data.database.SetDao
 import com.ytowka.worktimer2.data.models.Action
 import com.ytowka.worktimer2.data.models.ActionSet
+import com.ytowka.worktimer2.data.models.ActionType
 import com.ytowka.worktimer2.data.models.SetInfo
 
-class LocalRepository(context: Context,val setDao: SetDao, val actionDao: ActionDao) : Repository{
+class LocalRepository(val setDao: SetDao, val actionDao: ActionDao, val actionTypesDao: ActionTypesDao) : Repository{
 
     override fun getSets(): LiveData<List<ActionSet>> {
        return setDao.getSetsAsLiveData()
@@ -37,6 +39,18 @@ class LocalRepository(context: Context,val setDao: SetDao, val actionDao: Action
     }
     override suspend fun deleteAction(action: Action) {
         actionDao.deleteAction(action)
+    }
+
+    override suspend fun getActionTypes(): List<ActionType> {
+        return actionTypesDao.getActionTypes()
+    }
+
+    override suspend fun insertActionType(actionType: ActionType) {
+        actionTypesDao.addActionType(actionType)
+    }
+
+    override suspend fun deleteActionType(actionType: ActionType) {
+        actionTypesDao.removeActionType(actionType)
     }
 
     override suspend fun insertSetInfo(setInfo: SetInfo) : Long{

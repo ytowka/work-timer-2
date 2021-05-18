@@ -1,7 +1,6 @@
 package com.ytowka.worktimer2.screens
 
 import android.graphics.Color
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,8 +8,11 @@ import com.ytowka.worktimer2.data.Repository
 import com.ytowka.worktimer2.data.models.Action
 import com.ytowka.worktimer2.data.models.ActionSet
 import com.ytowka.worktimer2.data.models.SetInfo
+import com.ytowka.worktimer2.utils.C
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.launch
+import java.util.*
 import javax.inject.Inject
 import kotlin.random.Random
 
@@ -22,6 +24,7 @@ class TimerListViewModel @Inject constructor(private val repository: Repository)
 
 
     private var ld: LiveData<List<ActionSet>>? = null
+
 
     fun getSetList(): LiveData<List<ActionSet>>{
         if (ld == null){
@@ -41,22 +44,22 @@ class TimerListViewModel @Inject constructor(private val repository: Repository)
             deleteSet(it)
         }
     }
-    fun addSetItem(){
-        viewModelScope.launch {
-            val setInfo = SetInfo(name = "name: ${Random.nextInt(10,10_000)}")
-            val setId = repository.insertSetInfo(setInfo)
-            for (i in 0..Random.nextInt(10,15)){
-                val r = Random.nextInt(1,254)
-                val g = Random.nextInt(1,254)
-                val b = Random.nextInt(1,254)
-
-                val color = Color.rgb(r,g,b)
-                Log.i("debug","color: $r $g $b")
-
-                val action = Action(name = "action ${Random.nextInt(0,1000)}",duration = Random.nextInt(5,100),color = color,exactTimeDefine = Random.nextBoolean(),setId = setId.toInt())
-                repository.insertAction(action)
-                Log.i("debug","also added action to ${setId}")
+    fun filterList(query: String): Single<List<ActionSet>>{
+        return Single.create {emitter ->
+            val lowCaseQuery = query.toLowerCase(Locale.ROOT)
+            val filteredList = mutableListOf<ActionSet>()
+            getSetList().value?.forEach {
+                val lowerCaseText = it.setInfo.name.toLowerCase(Locale.ROOT)
+                if (lowerCaseText.contains(lowCaseQuery)) {
+                    filteredList.add(it)
+                }
+            }
+            if(!emitter.isDisposed){
+                emitter.onSuccess(filteredList)
             }
         }
+    }
+    fun addSetItem(){
+        C.generateRandomActionSet(viewModelScope,repository)
     }
 }

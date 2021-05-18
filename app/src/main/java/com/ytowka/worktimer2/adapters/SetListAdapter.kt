@@ -78,9 +78,9 @@ class SetListAdapter( var onItemClicked: (ActionSet, ItemSetBinding) -> Unit = {
         var checked = false
         set(value) {
             if(value){
-                binding.itemCardLayout.setBackgroundColor(binding.root.resources.getColor(R.color.cardViewSelected))
+               binding.cardSetInfo.setCardBackgroundColor(binding.root.resources.getColor(R.color.cardViewSelected))
             }else{
-                binding.itemCardLayout.setBackgroundColor(binding.root.resources.getColor(R.color.cardViewBg))
+               binding.cardSetInfo.setCardBackgroundColor(binding.root.resources.getColor(R.color.cardViewBg))
             }
 
             field = value

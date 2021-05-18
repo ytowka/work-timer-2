@@ -11,8 +11,11 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
@@ -22,7 +25,7 @@ import com.ytowka.worktimer2.R
 import com.ytowka.worktimer2.adapters.PreviewActionListAdapter
 import com.ytowka.worktimer2.data.models.Action
 import com.ytowka.worktimer2.databinding.FragmentSetPreviewBinding
-import com.ytowka.worktimer2.utils.C.Companion.TAG
+import com.ytowka.worktimer2.utils.C
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.TimeUnit
 
@@ -43,17 +46,19 @@ class SetPreviewFragment : Fragment() {
     private lateinit var binding: FragmentSetPreviewBinding
     private lateinit var viewmodel: SetPreviewViewModel
 
-
     private val args: SetPreviewFragmentArgs by navArgs()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        viewmodel = ViewModelProvider(this).get(SetPreviewViewModel::class.java)
-        viewmodel.setup(args.setId)
         binding = FragmentSetPreviewBinding.inflate(inflater)
+        viewmodel = ViewModelProvider(this).get(SetPreviewViewModel::class.java)
+        val setId = args.setId
+        viewmodel.setup(setId)
 
-        binding.cardView.transitionName = "frame${args.setId}"
-        binding.textSetNameTitle.transitionName = "name${args.setId}"
-        binding.btnPStart.transitionName = "time${args.setId}"
+        //binding.textSetNameTitle.text = args.setName ?: " "
+
+        binding.cardView.transitionName = "frame$setId"
+        binding.textSetNameTitle.transitionName = "name$setId"
+        binding.btnPStart.transitionName = "time$setId"
 
         val dialog = buildDialog()
 
@@ -67,6 +72,7 @@ class SetPreviewFragment : Fragment() {
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(resources.getColor(R.color.colorOnSurface,requireContext().theme))
                     dialog.window?.setBackgroundDrawableResource(R.drawable.dialog_bg);
                 }else{
+                    viewmodel.stopTimer()
                     findNavController().navigateUp()
                 }
             }
@@ -78,25 +84,31 @@ class SetPreviewFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(R.transition.complex)
+
+        val transition = TransitionInflater.from(context).inflateTransition(R.transition.complex)
+        sharedElementEnterTransition = transition
         postponeEnterTransition()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onStart()
         binding.rvPActionList.layoutManager = LinearLayoutManager(context)
-
-        val adapter = PreviewActionListAdapter {
+        val adapter = PreviewActionListAdapter{
             if (viewmodel.isStarted()) {
                 viewmodel.jumpTo(it)
             }
         }
         binding.rvPActionList.adapter = adapter
 
-        viewmodel.getSet().observe(viewLifecycleOwner) {
+        viewmodel.actionSetLiveData.observe(viewLifecycleOwner) {
+            if(viewmodel.isStarted()){
+                binding.motionLayoutPreview.transitionToEnd()
+            }
             binding.textSetNameTitle.text = it.setInfo.name
+            Log.i("debug",it.setInfo.name)
             binding.textTimeOnButton.text = it.getStringDuration()
             binding.currentActionTime.text = (it.actions.first().duration.toLong() * 1000).toStringTime()
+
             adapter.setup(it.actions)
 
             if (viewmodel.isStarted()) {
@@ -157,12 +169,7 @@ class SetPreviewFragment : Fragment() {
     }
 
     private fun initCard(action: Action) {
-        val isLight = let {
-            val r = Color.red(action.color)
-            val g = Color.green(action.color)
-            val b = Color.blue(action.color)
-            (r + g + b) / 3 >= 135
-        }
+        val isLight = C.isColorLight(action.color)
 
         binding.progressBar2.max = action.duration * 1000
         binding.progressBar2.progress = viewmodel.getCurrentTimerTime().toInt()
@@ -205,5 +212,15 @@ class SetPreviewFragment : Fragment() {
         }
         val dialog: AlertDialog? = builder?.create()
         return dialog!!
+    }
+
+    override fun onStart() {
+        viewmodel.isAppOpened = true
+        super.onStart()
+    }
+
+    override fun onStop() {
+        viewmodel.isAppOpened = false
+        super.onStop()
     }
 }

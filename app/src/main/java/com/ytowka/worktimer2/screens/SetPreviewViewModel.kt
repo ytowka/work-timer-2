@@ -1,142 +1,114 @@
 package com.ytowka.worktimer2.screens
 
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
+import android.os.IBinder
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.ytowka.worktimer2.data.Repository
 import com.ytowka.worktimer2.data.database.SetDao
 import com.ytowka.worktimer2.data.models.Action
 import com.ytowka.worktimer2.data.models.ActionSet
-import com.ytowka.worktimer2.data.models.SetInfo
-import com.ytowka.worktimer2.utils.ActionTimer
-import com.ytowka.worktimer2.utils.ActionsTimerSequence
-import com.ytowka.worktimer2.utils.Timer
-import com.ytowka.worktimer2.utils.observeOnce
+import com.ytowka.worktimer2.services.TimerService
+import com.ytowka.worktimer2.utils.C
+import com.ytowka.worktimer2.utils.C.Companion.observeOnce
+import com.ytowka.worktimer2.utils.timers.ActionsTimerSequence
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
-import kotlin.random.Random
 
 @HiltViewModel
-class SetPreviewViewModel @Inject constructor(private val repository: Repository,private val setDao: SetDao) : ViewModel() {
+class SetPreviewViewModel @Inject constructor(
+    private val repository: Repository,
+    private val setDao: SetDao,
+    @ApplicationContext val context: Context
+) : ViewModel() {
 
     @Inject
     lateinit var finishAction: Action
 
-    private var setId: Int? = null
-    private lateinit var actionSet: ActionSet
+    var isAppOpened = false
+    set(value) {
+        field = value
+        timerService?.isAppOpened = value
+    }
 
-    private lateinit var timerSequence: ActionsTimerSequence
-    fun isStarted() = timerSequence.started
-    fun isRestarted() = timerSequence.restarted
+    var serviceInited = false
+    private set
 
+    fun isStarted() = timerService!!.isStarted()
+    fun isRestarted() = timerService!!.isRestarted()
+
+    private var serviceBinder: TimerService.MyBinder? = null
+    private var timerService: TimerService? = null
+
+
+    var actionSetLiveData = MutableLiveData<ActionSet>()
+
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
+            Log.i("debug","service connected to viewModel")
+            serviceBinder = p1 as TimerService.MyBinder
+            timerService = serviceBinder!!.service
+            serviceInited = true
+            timerService!!.isAppOpened = isAppOpened
+
+            timerService!!.timerSequenceLiveData.observeOnce {
+                actionSetLiveData.value = it.actionSet
+            }
+        }
+
+        override fun onServiceDisconnected(p0: ComponentName?) {
+            Log.i("debug","service disconnected from viewModel")
+            serviceBinder = null
+            timerService = null
+        }
+    }
     fun setup(setId: Int) {
-        if(this.setId == null){
-            this.setId = setId
-            getSet().observeOnce {
-                actionSet = it.withFinishAction(finishAction)
-                timerSequence = ActionsTimerSequence(actionSet)
-            }
-        }
-    }
-    fun setOnActionFinishCallback(callback: (Action)->Unit){
-        timerSequence.onActionFinished = {
-            callback(it.action)
-            if(it.reverseCountDown){
-                it.addCallback(13,progressBarUpdate)
-            }else{
-                it.addCallback(13) {time ->
-                    progressBarUpdate((it.action.duration*1000).toLong())
-                }
-            }
-            it.addCallback(1000,timeTextUpdate)
-        }
-    }
-    fun currentAction() = timerSequence.currAction()
-
-    private lateinit var progressBarUpdate: (Long) -> Unit
-    private lateinit var timeTextUpdate: (Long) -> Unit
-
-    fun setupCallbacks(progressBarUpdate: (Long) -> Unit, timeTextUpdate: (Long) -> Unit){
-        this.progressBarUpdate = progressBarUpdate
-        this.timeTextUpdate = timeTextUpdate
-        timerSequence.currentTimer().clearCallBacks()
-        val it = timerSequence.currentTimer()
-        if(it.reverseCountDown){
-            it.addCallback(13,progressBarUpdate)
-        }else{
-            it.addCallback(13) {time ->
-                progressBarUpdate((it.action.duration*1000).toLong())
-            }
-        }
-        it.addCallback(1000,timeTextUpdate)
-    }
-    fun getCurrentTimerTime(): Long{
-        return timerSequence.currentTimer().msPassed
+        val intentService = Intent(context, TimerService::class.java)
+        intentService.putExtra(C.EXTRA_SET_ID, setId)
+        intentService.action = C.ACTION_INIT_TIMER
+        context.bindService(intentService, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
-
-    fun setOnSequenceFinish(onFinish: () -> Unit){
-        timerSequence.onSequenceFinish = onFinish
-    }
-
-    fun jumpTo(action: Action){
-        timerSequence.jumpToAction(action)
-    }
-    private fun getSetId(): Int {
-        if (setId != null) return setId!!
-        else throw Exception("setId must be initialized")
-    }
-
-    fun getSet(): LiveData<ActionSet> {
-        return repository.getSet(getSetId())
-    }
-    val paused: Boolean
-    get() = timerSequence.paused
     //fun returns true if button starts or resumes current timer
-    fun clickStartBtn(): Boolean{
-        if(!timerSequence.started){
+    fun clickStartBtn(): Boolean {
+        if (!isStarted()) {
             start()
             return true
-        }else{
-            return if(timerSequence.currAction().exactTimeDefine){
-                if(timerSequence.paused){
-                    timerSequence.resume()
+        } else {
+            return if (currentAction().exactTimeDefine) {
+                if (isTimerPaused()) {
+                    resumeTimer()
                     true
-                }else{
-                    timerSequence.pause()
+                } else {
+                    pauseTimer()
                     false
                 }
-            }else{
-                timerSequence.next()
+            } else {
+                nextTimer()
                 true
             }
         }
     }
 
-    private fun start() {
-        timerSequence.start()
+    fun setOnActionFinishCallback(callback: (Action) -> Unit) = timerService?.setOnActionFinishCallback(callback) ?: {throw Exception("timer service not inited")}
+    fun setupCallbacks(progressBarUpdate: (Long) -> Unit, timeTextUpdate: (Long) -> Unit) = timerService?.setupCallbacks(progressBarUpdate,timeTextUpdate) ?: {throw Exception("timer service not inited")}
+
+    fun currentAction() = timerService!!.currentAction()
+    fun setOnSequenceFinish(onFinish: () -> Unit) = timerService!!.setOnSequenceFinish(onFinish)
+    val paused: Boolean get() = timerService!!.paused
+    fun jumpTo(action: Action) = timerService!!.jumpTo(action)
+    fun getCurrentTimerTime(): Long = timerService!!.getCurrentTimerTime()
+    private fun start() = timerService!!.startTimers()
+    private fun nextTimer() = timerService!!.nextTimer()
+    private fun isTimerPaused(): Boolean = timerService!!.isTimerPaused()
+    fun stopTimer() {
+        context.unbindService(serviceConnection)
+        timerService!!.stopTimer()
     }
-    fun stopTimer(){
-        timerSequence.stop()
-    }
-    fun pauseTimer(){
-        timerSequence.pause()
-    }
-    fun resumeTimer(){
-        timerSequence.resume()
-    }
-   /* private fun generateRandomActionSet(){
-        viewModelScope.launch {
-            val setInfo = SetInfo(0,"set ${Random.nextInt(0, 1000)}")
-            val setId = setDao.insertSetInfo(setInfo)
-            val actions = List(10){
-                Action("action ${Random.nextInt(0,1000)}",Random.nextInt(5,120), Random.nextInt(Int.MIN_VALUE,Int.MAX_VALUE), Random.nextBoolean(),0,setId.toInt())
-            }.forEach {
-                repository.insertAction(it)
-            }
-        }
-    }*/
+    fun pauseTimer() = timerService!!.pauseTimer()
+    fun resumeTimer() = timerService!!.resumeTimer()
 }
