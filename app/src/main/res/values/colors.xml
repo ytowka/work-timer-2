@@ -7,12 +7,12 @@
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>-->
 
-    <color name="purple_200">#FF5E5A</color>
-    <color name="purple_500">#DB1916</color>
+    <color name="purple_200">#F6605D</color>
+    <color name="purple_500">#C81B18</color>
     <color name="purple_700">#8F0907</color>
 
-    <color name="teal_200">#16DB54</color>
-    <color name="teal_700">#008F2D</color>
+    <color name="teal_200">#1686DB</color>
+    <color name="teal_700">#00628F</color>
 
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
@@ -24,7 +24,7 @@
     <color name="light_darker_bg">#DADADA</color>
     <color name="current_action_bg">#59748C</color>
 
-    <color name="rest">#29AE4E</color>
+    <color name="rest">#2FBD56</color>
     <color name="training">#BD1828</color>
     <color name="plus">#176FDB</color>
 

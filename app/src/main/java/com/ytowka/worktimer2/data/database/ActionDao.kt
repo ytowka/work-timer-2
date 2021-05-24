@@ -13,6 +13,9 @@ interface ActionDao {
     @Query("SELECT * FROM actions_table WHERE setId = :setId")
     suspend fun getSetActions(setId: Int): List<Action>
 
+    @Query("SELECT * FROM actions_table WHERE actionId = :actionId")
+    fun getActionAsLiveData(actionId: Int): LiveData<Action>
+
     @Insert
     suspend fun insertAction(action: Action)
 

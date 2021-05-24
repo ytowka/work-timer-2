@@ -13,6 +13,7 @@ interface Repository {
     suspend fun deleteSet(actionSet: ActionSet)
 
     fun getActions(setId: Int): LiveData<List<Action>>
+    fun getAction(actionId: Int): LiveData<Action>
     suspend fun insertAction(action: Action)
     suspend fun updateAction(action: Action)
     suspend fun deleteAction(action: Action)

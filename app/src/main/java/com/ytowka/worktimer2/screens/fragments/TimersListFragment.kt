@@ -1,4 +1,4 @@
-package com.ytowka.worktimer2.screens
+package com.ytowka.worktimer2.screens.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,6 +14,8 @@ import com.ytowka.worktimer2.R
 import com.ytowka.worktimer2.adapters.SetListAdapter
 import com.ytowka.worktimer2.data.models.ActionSet
 import com.ytowka.worktimer2.databinding.FragmentTimersListBinding
+import com.ytowka.worktimer2.screens.viewmodels.TimerListViewModel
+import com.ytowka.worktimer2.screens.TimersListFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -66,7 +68,8 @@ class TimersListFragment : Fragment() {
                     binding.textApproximateTime to "time$setId",
                     binding.cardSetInfo to "frame$setId",
                 )
-                val action = TimersListFragmentDirections.previewSet(set.setInfo.setId, set.setInfo.name)
+                val action =
+                    TimersListFragmentDirections.previewSet(set.setInfo.setId, set.setInfo.name)
                 findNavController().navigate(action, extras)
             }
         }

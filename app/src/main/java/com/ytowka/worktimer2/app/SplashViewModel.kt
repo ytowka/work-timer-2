@@ -30,6 +30,7 @@ class SplashViewModel @Inject constructor(@ApplicationContext context: Context) 
             service = serviceBinder!!.service
             service!!.isLaunchedLiveData.observeOnce {
                 isTimerInitedLiveData.value = it
+                Log.i("debug","service disconnected from splash viewModel")
                 context.unbindService(this)
             }
         }

@@ -1,20 +1,16 @@
-package com.ytowka.worktimer2.screens
+package com.ytowka.worktimer2.screens.viewmodels
 
-import android.graphics.Color
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ytowka.worktimer2.data.Repository
-import com.ytowka.worktimer2.data.models.Action
 import com.ytowka.worktimer2.data.models.ActionSet
-import com.ytowka.worktimer2.data.models.SetInfo
 import com.ytowka.worktimer2.utils.C
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
-import kotlin.random.Random
 
 @HiltViewModel
 class TimerListViewModel @Inject constructor(private val repository: Repository) : ViewModel() {

@@ -134,7 +134,7 @@ class DatabaseTest {
         actionInfo = setDao.getSets()[0].setInfo
 
         val newTestName = "new test name"
-        actionInfo.name = newTestName
+        actionInfo = SetInfo(actionInfo.setId, newTestName)
         setDao.updateSetInfo(actionInfo)
 
         val sets = setDao.getSets()

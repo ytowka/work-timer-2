@@ -5,10 +5,10 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "actions_table")
 data class Action(
-    var name: String,
-    var duration: Int,
-    var color: Int,
-    var exactTimeDefine: Boolean,
+    val name: String,
+    val duration: Int,
+    val color: Int,
+    val exactTimeDefine: Boolean,
     @PrimaryKey(autoGenerate = true) val actionId: Int = 0,
     val setId: Int = 0
 )
@@ -18,6 +18,12 @@ data class Action(
         val seconds = duration % 60
         return "${if (minutes<10) "0${minutes}" else minutes}:${if (seconds<10) "0${seconds}" else seconds}"
     }
+
+    fun clone(name: String = this.name,
+              duration: Int = this.duration,
+              color: Int = this.color,
+              exactTimeDefine: Boolean = this.exactTimeDefine,
+    ): Action = Action(name, duration, color, exactTimeDefine, this.setId)
 
     override fun equals(other: Any?): Boolean {
         if(other is Action){

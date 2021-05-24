@@ -31,6 +31,11 @@ class LocalRepository(val setDao: SetDao, val actionDao: ActionDao, val actionTy
     override fun getActions(setId: Int): LiveData<List<Action>> {
         return actionDao.getSetActionsAsLiveData(setId)
     }
+
+    override fun getAction(actionId: Int): LiveData<Action> {
+        return actionDao.getActionAsLiveData(actionId)
+    }
+
     override suspend fun insertAction(action: Action) {
         actionDao.insertAction(action)
     }

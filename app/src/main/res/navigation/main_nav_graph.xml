@@ -19,7 +19,7 @@
 
     <fragment
         android:id="@+id/timersListFragment"
-        android:name="com.ytowka.worktimer2.screens.TimersListFragment"
+        android:name="com.ytowka.worktimer2.screens.fragments.TimersListFragment"
         android:label="fragment_timers_list"
         tools:layout="@layout/fragment_timers_list" >
         <action
@@ -59,16 +59,28 @@
     </fragment>
     <fragment
         android:id="@+id/editSetFragment"
-        android:name="com.ytowka.worktimer2.screens.EditSetFragment"
+        android:name="com.ytowka.worktimer2.screens.fragments.EditSetFragment"
         android:label="fragment_edit_set"
         tools:layout="@layout/fragment_edit_set" >
         <argument
             android:name="setId"
             app:argType="integer" />
+        <action
+            android:id="@+id/action_editSetFragment_to_actionEditFragment"
+            app:destination="@id/actionEditFragment" />
     </fragment>
     <fragment
         android:id="@+id/splashFragment"
         android:name="com.ytowka.worktimer2.app.SplashFragment"
         android:label="fragment_splash"
         tools:layout="@layout/fragment_splash" />
+    <fragment
+        android:id="@+id/actionEditFragment"
+        android:name="com.ytowka.worktimer2.screens.fragments.ActionEditFragment"
+        android:label="fragment_action_edit"
+        tools:layout="@layout/fragment_action_edit" >
+        <argument
+            android:name="actionId"
+            app:argType="integer" />
+    </fragment>
 </navigation>

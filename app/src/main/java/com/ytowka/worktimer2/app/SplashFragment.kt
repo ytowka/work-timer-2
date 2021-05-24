@@ -1,10 +1,13 @@
 package com.ytowka.worktimer2.app
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.HandlerCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -23,6 +26,7 @@ class SplashFragment : Fragment(R.layout.fragment_splash){
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         viewModel = ViewModelProvider(requireActivity() as MainActivity).get(SplashViewModel::class.java)
         viewModel.isTimerInitedLiveData.observe(viewLifecycleOwner){
             if(it){
@@ -40,6 +44,7 @@ class SplashFragment : Fragment(R.layout.fragment_splash){
         val action = SetPreviewFragmentDirections.toTimer(-1, null)
         findNavController().navigate(action)
     }
+
     private fun jumpToList(){
         findNavController().navigate(R.id.to_list,null, navOptions {
             popUpTo(R.id.splashFragment, popUpToBuilder = {

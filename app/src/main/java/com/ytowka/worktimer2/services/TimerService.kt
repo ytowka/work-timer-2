@@ -22,7 +22,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class TimerService : Service() {
-
     @Inject
     lateinit var repository: Repository
     private var binder = MyBinder()
@@ -38,11 +37,12 @@ class TimerService : Service() {
     val timerSequenceLiveData =  MutableLiveData<ActionsTimerSequence>()
     val isLaunchedLiveData = MutableLiveData<Boolean>()
 
-    private var connectedCount = 0
+    var connectedCount = 0
+    private set
 
     override fun onBind(intent: Intent?): IBinder {
         connectedCount ++
-        Log.i("service_debug","service bound")
+        Log.i("service_debug","service bound: $connectedCount")
         when(intent!!.action){
             C.ACTION_INIT_TIMER ->{
                 if (timerSequenceLiveData.value == null) {
@@ -57,10 +57,6 @@ class TimerService : Service() {
             C.ACTION_CHECK_IS_LAUNCHED ->{
                 Log.i("service_debug","bind service check timer state: ${timerSequenceLiveData.value != null}")
                 isLaunchedLiveData.value = timerSequenceLiveData.value != null
-                stopSelf()
-            }
-            else ->{
-                Log.i("service_debug","bind service no action")
             }
         }
 
@@ -110,7 +106,6 @@ class TimerService : Service() {
                 .setOngoing(false)
                 .setSmallIcon(R.drawable.ic_timer)
                 .setColor(currentAction().color)
-                //.setContentTitle(applicationContext.getString(R.string.timer_started)+", "+applicationContext.getString(R.string.current_action)+": "+time)
                 .setContentTitle("${currentAction().name}: $time")
                 .setContentIntent(pendingIntent)
         if(paused){

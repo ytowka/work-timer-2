@@ -18,4 +18,6 @@
     <string name="training">подход</string>
     <string name="new_action">"новое действие: "</string>
     <string name="current_action">текущее действие</string>
+    <string name="editing">редактирование</string>
+    <string name="creating">создание</string>
 </resources>

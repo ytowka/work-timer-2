@@ -1,4 +1,4 @@
-package com.ytowka.worktimer2.screens
+package com.ytowka.worktimer2.screens.viewmodels
 
 import android.content.ComponentName
 import android.content.Context
@@ -14,7 +14,6 @@ import com.ytowka.worktimer2.data.models.ActionSet
 import com.ytowka.worktimer2.services.TimerService
 import com.ytowka.worktimer2.utils.C
 import com.ytowka.worktimer2.utils.C.Companion.observeOnce
-import com.ytowka.worktimer2.utils.timers.ActionsTimerSequence
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -45,32 +44,35 @@ class SetPreviewViewModel @Inject constructor(
     private var timerService: TimerService? = null
 
 
-    var actionSetLiveData = MutableLiveData<ActionSet>()
+    private var actionSetLiveData = MutableLiveData<ActionSet>()
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
-            Log.i("debug","service connected to viewModel")
+
             serviceBinder = p1 as TimerService.MyBinder
             timerService = serviceBinder!!.service
             serviceInited = true
             timerService!!.isAppOpened = isAppOpened
-
+            Log.i("debug","service connected to viewModel, ${timerService!!.connectedCount}")
             timerService!!.timerSequenceLiveData.observeOnce {
-                actionSetLiveData.value = it.actionSet
+                if(it != null){
+                    actionSetLiveData.value = it.actionSet
+                }
             }
         }
-
         override fun onServiceDisconnected(p0: ComponentName?) {
-            Log.i("debug","service disconnected from viewModel")
+            Log.i("debug","service disconnected from preview viewModel")
             serviceBinder = null
             timerService = null
         }
     }
-    fun setup(setId: Int) {
+    fun setup(setId: Int): LiveData<ActionSet>{
         val intentService = Intent(context, TimerService::class.java)
         intentService.putExtra(C.EXTRA_SET_ID, setId)
         intentService.action = C.ACTION_INIT_TIMER
+        Log.i("debug","viewmodel binds service")
         context.bindService(intentService, serviceConnection, Context.BIND_AUTO_CREATE)
+        return actionSetLiveData
     }
 
     //fun returns true if button starts or resumes current timer
@@ -106,6 +108,7 @@ class SetPreviewViewModel @Inject constructor(
     private fun nextTimer() = timerService!!.nextTimer()
     private fun isTimerPaused(): Boolean = timerService!!.isTimerPaused()
     fun stopTimer() {
+        timerService?.stopSelf()
         context.unbindService(serviceConnection)
         timerService!!.stopTimer()
     }
