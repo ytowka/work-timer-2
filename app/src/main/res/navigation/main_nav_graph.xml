@@ -39,12 +39,12 @@
     </fragment>
     <fragment
         android:id="@+id/setPreviewFragment"
-        android:name="com.ytowka.worktimer2.screens.SetPreviewFragment"
+        android:name="com.ytowka.worktimer2.screens.fragments.SetPreviewFragment"
         android:label="fragment_set_preview"
         tools:layout="@layout/fragment_set_preview" >
         <argument
             android:name="setId"
-            app:argType="integer" />
+            app:argType="long" />
         <action
             android:id="@+id/edit_set_from_preview"
             app:destination="@id/editSetFragment"
@@ -64,7 +64,7 @@
         tools:layout="@layout/fragment_edit_set" >
         <argument
             android:name="setId"
-            app:argType="integer" />
+            app:argType="long" />
         <action
             android:id="@+id/action_editSetFragment_to_actionEditFragment"
             app:destination="@id/actionEditFragment" />
@@ -80,7 +80,7 @@
         android:label="fragment_action_edit"
         tools:layout="@layout/fragment_action_edit" >
         <argument
-            android:name="actionId"
+            android:name="actId"
             app:argType="integer" />
     </fragment>
 </navigation>

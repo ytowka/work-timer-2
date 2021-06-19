@@ -20,4 +20,5 @@
     <string name="current_action">текущее действие</string>
     <string name="editing">редактирование</string>
     <string name="creating">создание</string>
+    <string name="action">действие</string>
 </resources>

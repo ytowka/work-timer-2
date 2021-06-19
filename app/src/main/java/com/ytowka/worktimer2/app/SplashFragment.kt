@@ -14,7 +14,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import com.ytowka.worktimer2.R
-import com.ytowka.worktimer2.screens.SetPreviewFragmentDirections
+import com.ytowka.worktimer2.screens.fragments.SetPreviewFragmentDirections
 import com.ytowka.worktimer2.utils.C.Companion.observeOnce
 
 class SplashFragment : Fragment(R.layout.fragment_splash){

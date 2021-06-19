@@ -9,7 +9,10 @@ data class ActionType(
     val color: Int,
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
 ) {
-    fun Action.applyType(type: ActionType): Action{
-        return this.clone(this@ActionType.name, color =  this@ActionType.color)
+    companion object{
+        fun Action.applyType(type: ActionType){
+            name = type.name
+            color = type.color
+        }
     }
 }

@@ -16,7 +16,7 @@ class LocalRepository(val setDao: SetDao, val actionDao: ActionDao, val actionTy
        return setDao.getSetsAsLiveData()
     }
 
-    override fun getSet(id: Int): LiveData<ActionSet> {
+    override fun getSet(id: Long): LiveData<ActionSet> {
         return setDao.getSetAsLiveData(id)
     }
 
@@ -46,6 +46,10 @@ class LocalRepository(val setDao: SetDao, val actionDao: ActionDao, val actionTy
         actionDao.deleteAction(action)
     }
 
+    override suspend fun deleteActions(setId: Long) {
+        actionDao.deleteSetActions(setId)
+    }
+
     override suspend fun getActionTypes(): List<ActionType> {
         return actionTypesDao.getActionTypes()
     }
@@ -63,5 +67,13 @@ class LocalRepository(val setDao: SetDao, val actionDao: ActionDao, val actionTy
     }
     override suspend fun updateSetInfo(setInfo: SetInfo) {
         setDao.updateSetInfo(setInfo)
+    }
+
+    override suspend fun insertActionSet(actionSet: ActionSet) {
+        val setInfoId = setDao.insertSetInfo(actionSet.setInfo)
+        actionSet.actions.forEach {
+            it.setId = setInfoId
+            actionDao.insertAction(it)
+        }
     }
 }

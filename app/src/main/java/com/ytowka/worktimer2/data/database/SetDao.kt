@@ -12,14 +12,13 @@ interface SetDao {
     @Query("SELECT * FROM sets_table")
     suspend fun getSets(): List<ActionSet>
 
-
     @Transaction
     @Query("SELECT * FROM sets_table")
     fun getSetsAsLiveData(): LiveData<List<ActionSet>>
 
     @Transaction
     @Query("SELECT * FROM sets_table WHERE setId = :id")
-    fun getSetAsLiveData(id: Int): LiveData<ActionSet>
+    fun getSetAsLiveData(id: Long): LiveData<ActionSet>
 
     suspend fun deleteSet(actionSet: ActionSet){
         deleteSetInfo(actionSet.setInfo)
@@ -30,7 +29,7 @@ interface SetDao {
     suspend fun insertSetInfo(setInfo: SetInfo): Long
 
     @Query("DELETE FROM actions_table WHERE setId = :setId")
-    suspend fun deleteActions(setId: Int)
+    suspend fun deleteActions(setId: Long)
 
     @Delete
     suspend fun deleteSetInfo(setInfo: SetInfo)

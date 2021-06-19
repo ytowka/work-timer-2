@@ -13,6 +13,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.observe
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -22,24 +23,11 @@ import com.ytowka.worktimer2.adapters.PreviewActionListAdapter
 import com.ytowka.worktimer2.data.models.Action
 import com.ytowka.worktimer2.data.models.ActionSet
 import com.ytowka.worktimer2.databinding.FragmentSetPreviewBinding
-import com.ytowka.worktimer2.screens.SetPreviewFragmentArgs
-import com.ytowka.worktimer2.screens.SetPreviewFragmentDirections
 import com.ytowka.worktimer2.screens.viewmodels.SetPreviewViewModel
 import com.ytowka.worktimer2.utils.C
+import com.ytowka.worktimer2.utils.C.Companion.toStringTime
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.concurrent.TimeUnit
 
-fun Long.toStringTime(): String {
-    val minutes = TimeUnit.MILLISECONDS.toMinutes(this)
-    val seconds = TimeUnit.MILLISECONDS.toSeconds(this) - TimeUnit.MINUTES.toSeconds(minutes)
-    var string = ""
-    if (minutes != 0L) {
-        string += "$minutes:"
-        if (seconds < 10) string += 0
-    }
-    string += seconds
-    return string
-}
 
 @AndroidEntryPoint
 class SetPreviewFragment : Fragment() {
@@ -56,8 +44,6 @@ class SetPreviewFragment : Fragment() {
         viewmodel.setup(setId).observe(viewLifecycleOwner){
             initViews(it)
         }
-
-        //binding.textSetNameTitle.text = args.setName ?: " "
 
         binding.cardView.transitionName = "frame$setId"
         binding.textSetNameTitle.transitionName = "name$setId"
@@ -81,7 +67,6 @@ class SetPreviewFragment : Fragment() {
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,backPressedCallback);
-
         return binding.root
     }
 
@@ -140,7 +125,7 @@ class SetPreviewFragment : Fragment() {
         binding.textSetNameTitle.text = actionSet.setInfo.name
         Log.i("debug",actionSet.setInfo.name)
         binding.textTimeOnButton.text = actionSet.getStringDuration()
-        binding.currentActionTime.text = (actionSet.actions.first().duration.toLong() * 1000).toStringTime()
+        binding.currentActionTime.text = (actionSet.actions.first().duration * 1000).toStringTime()
 
         adapter.setup(actionSet.actions)
 
@@ -185,7 +170,7 @@ class SetPreviewFragment : Fragment() {
             binding.progressBar2.progress = binding.progressBar2.max
             adapter.currentAction = action
             setPauseButtonIcon(action.exactTimeDefine)
-            binding.currentActionTime.text = if (action.exactTimeDefine) (action.duration * 1000).toLong().toStringTime() else "0"
+            binding.currentActionTime.text = if (action.exactTimeDefine) (action.duration * 1000).toStringTime() else "0"
         }
         viewmodel.setOnSequenceFinish {
             adapter.currentAction = null
@@ -197,7 +182,7 @@ class SetPreviewFragment : Fragment() {
     private fun initCard(action: Action) {
         val isLight = C.isColorLight(action.color)
 
-        binding.progressBar2.max = action.duration * 1000
+        binding.progressBar2.max = (action.duration.toLong() * 1000).toInt()
         binding.progressBar2.progress = viewmodel.getCurrentTimerTime().toInt()
         binding.currentActionTime.text = if (action.exactTimeDefine) viewmodel.getCurrentTimerTime().toStringTime() else "0"
 

@@ -13,9 +13,9 @@ import com.ytowka.worktimer2.app.MainActivity
 import com.ytowka.worktimer2.R
 import com.ytowka.worktimer2.data.Repository
 import com.ytowka.worktimer2.data.models.Action
-import com.ytowka.worktimer2.screens.toStringTime
 import com.ytowka.worktimer2.utils.C
 import com.ytowka.worktimer2.utils.C.Companion.observeOnce
+import com.ytowka.worktimer2.utils.C.Companion.toStringTime
 import com.ytowka.worktimer2.utils.timers.ActionsTimerSequence
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -47,7 +47,7 @@ class TimerService : Service() {
             C.ACTION_INIT_TIMER ->{
                 if (timerSequenceLiveData.value == null) {
                     createForegroundNotification()
-                    val setId = intent.extras!![C.EXTRA_SET_ID] as Int
+                    val setId = intent.extras!![C.EXTRA_SET_ID] as Long
                     repository.getSet(setId).observeOnce {
                         this.timerSequenceLiveData.value = ActionsTimerSequence(it)
                     }

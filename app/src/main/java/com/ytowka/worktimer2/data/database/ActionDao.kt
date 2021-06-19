@@ -16,11 +16,14 @@ interface ActionDao {
     @Query("SELECT * FROM actions_table WHERE actionId = :actionId")
     fun getActionAsLiveData(actionId: Int): LiveData<Action>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAction(action: Action)
 
     @Delete
     suspend fun deleteAction(action: Action)
+
+    @Query("DELETE FROM actions_table WHERE setId = :setId")
+    suspend fun deleteSetActions(setId: Long)
 
     @Update
     suspend fun updateAction(action: Action)

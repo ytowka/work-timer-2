@@ -24,7 +24,7 @@ class ActionEditFragment : Fragment() {
     ): View? {
         binding = FragmentActionEditBinding.inflate(inflater)
         viewmodel = ViewModelProvider(this).get(ActionEditViewModel::class.java)
-        viewmodel.setup(args.actionId).observe(viewLifecycleOwner){
+        viewmodel.setup(args.actId).observe(viewLifecycleOwner){
             initViews(it)
         }
         return inflater.inflate(R.layout.fragment_action_edit, container, false)

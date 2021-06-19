@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.observe
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,7 +16,6 @@ import com.ytowka.worktimer2.adapters.SetListAdapter
 import com.ytowka.worktimer2.data.models.ActionSet
 import com.ytowka.worktimer2.databinding.FragmentTimersListBinding
 import com.ytowka.worktimer2.screens.viewmodels.TimerListViewModel
-import com.ytowka.worktimer2.screens.TimersListFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 

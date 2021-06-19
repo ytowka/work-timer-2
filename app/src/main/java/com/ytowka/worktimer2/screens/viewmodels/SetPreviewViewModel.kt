@@ -66,7 +66,7 @@ class SetPreviewViewModel @Inject constructor(
             timerService = null
         }
     }
-    fun setup(setId: Int): LiveData<ActionSet>{
+    fun setup(setId: Long): LiveData<ActionSet>{
         val intentService = Intent(context, TimerService::class.java)
         intentService.putExtra(C.EXTRA_SET_ID, setId)
         intentService.action = C.ACTION_INIT_TIMER

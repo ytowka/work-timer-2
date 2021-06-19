@@ -14,7 +14,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import com.ytowka.worktimer2.R
 import com.ytowka.worktimer2.databinding.ActivityMainBinding
-import com.ytowka.worktimer2.screens.SetPreviewFragmentDirections
 import com.ytowka.worktimer2.utils.C
 import com.ytowka.worktimer2.utils.C.Companion.observeOnce
 import dagger.hilt.android.AndroidEntryPoint

@@ -5,7 +5,11 @@ import kotlinx.coroutines.*
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
-open class CoroutineTimer(final override val duration: Long, override val reverseCountDown: Boolean = true, timeUnit: TimeUnit = TimeUnit.SECONDS) : Timer {
+open class CoroutineTimer(
+    final override val duration: Long,
+    override val reverseCountDown: Boolean = true,
+    timeUnit: TimeUnit = TimeUnit.SECONDS
+) : Timer {
     companion object {
         const val msStep = 10L
     }
@@ -31,38 +35,38 @@ open class CoroutineTimer(final override val duration: Long, override val revers
                 if (reverseCountDown) {
                     msPassed = msDuration
                     while (msPassed >= 0 && isActive) {
-                        delta = measureTimeMillis {
-                            if (!paused) {
-                                delay(msStep)
-                                withContext(Dispatchers.Main){
-                                    callbackList.forEach {
-                                        it.onTimerUpdate(delta, msPassed)
-                                    }
+                        val startTime = System.currentTimeMillis()
+                        if (!paused) {
+                            delay(msStep)
+                            withContext(Dispatchers.Main) {
+                                callbackList.forEach {
+                                    it.onTimerUpdate(delta, msPassed)
                                 }
-                                msPassed -= delta
                             }
+                            msPassed -= delta
                         }
+                        delta = System.currentTimeMillis() - startTime
                     }
                 } else {
                     while (isActive) {
-                        delta = measureTimeMillis {
-                            if (!paused) {
-                                delay(msStep)
-                                withContext(Dispatchers.Main){
-                                    callbackList.forEach {
-                                        it.onTimerUpdate(delta, msPassed)
-                                    }
+                        val startTime = System.currentTimeMillis()
+                        if (!paused) {
+                            delay(msStep)
+                            msPassed += delta
+                            withContext(Dispatchers.Main) {
+                                callbackList.forEach {
+                                    it.onTimerUpdate(delta, msPassed)
                                 }
-                                msPassed += delta
                             }
                         }
+                        delta = System.currentTimeMillis() - startTime
                     }
                 }
             } finally {
                 withContext(Dispatchers.Main) {
                     onFinished()
                 }
-                stop(true,true)
+                stop(true, true)
             }
         }
     }
@@ -81,7 +85,7 @@ open class CoroutineTimer(final override val duration: Long, override val revers
         paused = false
         timerJob?.cancel()
         msPassed = 0
-        if(!isSkipped) onFinished()
+        if (!isSkipped) onFinished()
     }
 
     private val callbackList = mutableListOf<TimerCallback>()
@@ -94,6 +98,7 @@ open class CoroutineTimer(final override val duration: Long, override val revers
         callbackList.clear()
     }
 }
+
 //default time unit is milliseconds
 class TimerCallback(private val step: Long, private val callback: (timeState: Long) -> Unit) {
     var msDelta = 0L

@@ -28,7 +28,7 @@ class ActionSet(
     }
 
     override fun hashCode(): Int {
-        return setInfo.setId
+        return setInfo.setId.hashCode()
     }
     fun withFinishAction(action: Action): ActionSet{
         val newList = actions.toMutableList()

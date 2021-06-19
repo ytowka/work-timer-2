@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:id="@+id/cardViewActionBg"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="4dp"
+
+    android:layout_marginVertical="2dp"
+    app:cardCornerRadius="20dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/textViewActionIndex"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:gravity="center"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/shape_rounded25"
+
+            android:backgroundTint="@color/on_light"
+            android:padding="4dp"
+            android:text="99"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/textViewActionName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+
+            android:layout_marginEnd="8dp"
+            android:background="@color/invisible"
+
+            android:maxLength="@integer/max_action_name"
+            android:maxLines="1"
+
+            android:paddingVertical="4dp"
+            android:paddingHorizontal="8dp"
+            android:text="action"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/editTextTextMM"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/textViewActionIndex"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/editTextTextSS"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:background="@color/invisible"
+            android:ems="2"
+            android:gravity="center"
+            android:hint="ss"
+            android:inputType="time"
+            android:maxLength="2"
+            android:paddingBottom="3dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/sep"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":"
+            app:layout_constraintBottom_toBottomOf="@+id/editTextTextSS"
+            app:layout_constraintEnd_toStartOf="@+id/editTextTextSS"
+            app:layout_constraintTop_toTopOf="@+id/editTextTextSS" />
+
+        <EditText
+            android:id="@+id/editTextTextMM"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/invisible"
+            android:ems="2"
+            android:gravity="center"
+            android:hint="mm"
+            android:inputType="time"
+            android:maxLength="3"
+            android:paddingBottom="3dp"
+            app:layout_constraintBottom_toBottomOf="@+id/editTextTextSS"
+            app:layout_constraintEnd_toStartOf="@+id/sep"
+            app:layout_constraintTop_toTopOf="@+id/editTextTextSS" />
+
+        <ImageView
+            android:id="@+id/imageViewReplay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/editTextTextSS"
+            app:layout_constraintStart_toStartOf="@+id/editTextTextMM"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_replay" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

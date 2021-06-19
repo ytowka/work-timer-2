@@ -21,7 +21,7 @@
     <string name="current_action">current action</string>
     <string name="editing">editing</string>
     <string name="creating">creating</string>
+    <string name="action">action</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>
