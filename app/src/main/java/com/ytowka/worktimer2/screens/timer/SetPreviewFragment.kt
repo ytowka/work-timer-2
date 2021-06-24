@@ -1,4 +1,4 @@
-package com.ytowka.worktimer2.screens.fragments
+package com.ytowka.worktimer2.screens.timer
 
 import android.content.res.ColorStateList
 import android.os.Bundle
@@ -23,7 +23,6 @@ import com.ytowka.worktimer2.adapters.PreviewActionListAdapter
 import com.ytowka.worktimer2.data.models.Action
 import com.ytowka.worktimer2.data.models.ActionSet
 import com.ytowka.worktimer2.databinding.FragmentSetPreviewBinding
-import com.ytowka.worktimer2.screens.viewmodels.SetPreviewViewModel
 import com.ytowka.worktimer2.utils.C
 import com.ytowka.worktimer2.utils.C.Companion.toStringTime
 import dagger.hilt.android.AndroidEntryPoint

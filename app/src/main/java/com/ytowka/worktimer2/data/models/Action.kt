@@ -9,14 +9,20 @@ data class Action(
     var duration: Long, //seconds
     var color: Int,
     var exactTimeDefine: Boolean,
-    @PrimaryKey(autoGenerate = true) var actionId: Int = 0,
-    var setId: Long = 0
+    @PrimaryKey(autoGenerate = true) var actionId: Long = 0,
+    var setId: Long = 0,
 )
 {
     fun getStringDuration(): String{
         val minutes = duration / 60
         val seconds = duration % 60
         return "${if (minutes<10) "0${minutes}" else minutes}:${if (seconds<10) "0${seconds}" else seconds}"
+    }
+    fun getSecondsOfDuration(): Int{
+        return (duration%60).toInt()
+    }
+    fun getMinutesOfDuration(): Int{
+        return (duration/60).toInt()
     }
 }
 enum class VocalizeSteps(stepSeconds: Int){

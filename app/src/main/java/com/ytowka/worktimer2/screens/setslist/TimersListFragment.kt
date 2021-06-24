@@ -1,4 +1,4 @@
-package com.ytowka.worktimer2.screens.fragments
+package com.ytowka.worktimer2.screens.setslist
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,7 +15,6 @@ import com.ytowka.worktimer2.R
 import com.ytowka.worktimer2.adapters.SetListAdapter
 import com.ytowka.worktimer2.data.models.ActionSet
 import com.ytowka.worktimer2.databinding.FragmentTimersListBinding
-import com.ytowka.worktimer2.screens.viewmodels.TimerListViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -123,7 +122,6 @@ class TimersListFragment : Fragment() {
         binding.FabAddSet.setOnClickListener {
             val extras = FragmentNavigatorExtras(binding.FabAddSet to "edit")
             val action = TimersListFragmentDirections.editSet(-1)
-            viewModel.addSetItem()
             findNavController().navigate(action, extras)
         }
         viewModel.getSetList().observe(viewLifecycleOwner) {

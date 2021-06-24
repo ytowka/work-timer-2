@@ -1,4 +1,4 @@
-package com.ytowka.worktimer2.screens.viewmodels
+package com.ytowka.worktimer2.screens.setslist
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel

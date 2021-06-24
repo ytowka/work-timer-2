@@ -4,9 +4,9 @@ import androidx.room.Embedded
 import androidx.room.Relation
 
 class ActionSet(
-    @Embedded val setInfo: SetInfo,
+    @Embedded var setInfo: SetInfo,
     @Relation(parentColumn = "setId", entityColumn = "setId")
-    val actions: List<Action>
+    var actions: List<Action>
 ){
 
     fun getTotalDuration() = actions.sumOf {

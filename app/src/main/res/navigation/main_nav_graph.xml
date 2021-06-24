@@ -19,7 +19,7 @@
 
     <fragment
         android:id="@+id/timersListFragment"
-        android:name="com.ytowka.worktimer2.screens.fragments.TimersListFragment"
+        android:name="com.ytowka.worktimer2.screens.setslist.TimersListFragment"
         android:label="fragment_timers_list"
         tools:layout="@layout/fragment_timers_list" >
         <action
@@ -31,56 +31,36 @@
             app:popExitAnim="@anim/fragment_fade_exit" />
         <action
             android:id="@+id/edit_set"
-            app:destination="@id/editSetFragment"
-            app:enterAnim="@anim/fragment_fade_enter"
-            app:exitAnim="@anim/fragment_fade_exit"
-            app:popEnterAnim="@anim/fragment_fade_enter"
-            app:popExitAnim="@anim/fragment_fade_exit"/>
+            app:destination="@id/editorActivity" />
     </fragment>
     <fragment
         android:id="@+id/setPreviewFragment"
-        android:name="com.ytowka.worktimer2.screens.fragments.SetPreviewFragment"
+        android:name="com.ytowka.worktimer2.screens.timer.SetPreviewFragment"
         android:label="fragment_set_preview"
         tools:layout="@layout/fragment_set_preview" >
         <argument
             android:name="setId"
             app:argType="long" />
-        <action
-            android:id="@+id/edit_set_from_preview"
-            app:destination="@id/editSetFragment"
-            app:enterAnim="@anim/fragment_fade_enter"
-            app:exitAnim="@anim/fragment_fade_exit"
-            app:popEnterAnim="@anim/fragment_fade_enter"
-            app:popExitAnim="@anim/fragment_fade_exit"/>
         <argument
             android:name="setName"
             app:argType="string"
             app:nullable="true" />
-    </fragment>
-    <fragment
-        android:id="@+id/editSetFragment"
-        android:name="com.ytowka.worktimer2.screens.fragments.EditSetFragment"
-        android:label="fragment_edit_set"
-        tools:layout="@layout/fragment_edit_set" >
-        <argument
-            android:name="setId"
-            app:argType="long" />
         <action
-            android:id="@+id/action_editSetFragment_to_actionEditFragment"
-            app:destination="@id/actionEditFragment" />
+            android:id="@+id/edit_set_from_preview"
+            app:destination="@id/editorActivity" />
     </fragment>
     <fragment
         android:id="@+id/splashFragment"
         android:name="com.ytowka.worktimer2.app.SplashFragment"
         android:label="fragment_splash"
         tools:layout="@layout/fragment_splash" />
-    <fragment
-        android:id="@+id/actionEditFragment"
-        android:name="com.ytowka.worktimer2.screens.fragments.ActionEditFragment"
-        android:label="fragment_action_edit"
-        tools:layout="@layout/fragment_action_edit" >
+    <activity
+        android:id="@+id/editorActivity"
+        android:name="com.ytowka.worktimer2.screens.editor.EditorActivity"
+        android:label="activity_editor"
+        tools:layout="@layout/activity_editor" >
         <argument
-            android:name="actId"
-            app:argType="integer" />
-    </fragment>
+            android:name="setId"
+            app:argType="long" />
+    </activity>
 </navigation>

@@ -14,10 +14,10 @@ interface ActionDao {
     suspend fun getSetActions(setId: Int): List<Action>
 
     @Query("SELECT * FROM actions_table WHERE actionId = :actionId")
-    fun getActionAsLiveData(actionId: Int): LiveData<Action>
+    fun getActionAsLiveData(actionId: Long): LiveData<Action>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAction(action: Action)
+    suspend fun insertAction(action: Action): Long
 
     @Delete
     suspend fun deleteAction(action: Action)

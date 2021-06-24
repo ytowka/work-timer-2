@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/editor_nav_graph"
+    app:startDestination="@id/editSetFragment">
+    <fragment
+        android:id="@+id/editSetFragment"
+        android:name="com.ytowka.worktimer2.screens.editor.EditSetFragment"
+        android:label="fragment_edit_set"
+        tools:layout="@layout/fragment_edit_set" >
+        <action
+            android:id="@+id/to_action_edit"
+            app:destination="@id/actionEditFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/actionEditFragment"
+        android:name="com.ytowka.worktimer2.screens.editor.ActionEditFragment"
+        android:label="fragment_action_edit"
+        tools:layout="@layout/fragment_action_edit" />
+</navigation>

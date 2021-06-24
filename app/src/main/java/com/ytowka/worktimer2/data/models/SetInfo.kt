@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "sets_table")
 data class SetInfo (
-    @PrimaryKey(autoGenerate = true) val setId: Long = 0,
+    @PrimaryKey(autoGenerate = true) var setId: Long = 0,
     var name: String,
 ){
     fun clone(name: String = this.name): SetInfo = SetInfo(this.setId, name)

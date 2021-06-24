@@ -22,6 +22,13 @@
     <string name="editing">editing</string>
     <string name="creating">creating</string>
     <string name="action">action</string>
+    <string name="name">name</string>
+    <string name="exact_time">exact time</string>
+    <string name="choose_color">Choose color</string>
+    <string name="apply">apply</string>
+    <string name="timer_name">timer name</string>
+    <string name="symbols">symbols</string>
+    <string name="empty_name">empty name</string>
     <!-- TODO: Remove or change this placeholder text -->
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

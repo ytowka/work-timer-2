@@ -9,16 +9,20 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.ytowka.worktimer2.R
 import com.ytowka.worktimer2.data.models.Action
+import com.ytowka.worktimer2.data.models.ActionType
 import com.ytowka.worktimer2.databinding.ItemEditActionBinding
 import com.ytowka.worktimer2.utils.C
 import java.util.*
 
 class EditActionListAdapter(
     private var actionList: MutableList<Action>,
+    val onColorClicked: (action: Action) -> Unit,
     val actionEditCallback: ActionEditCallback
 ) : RecyclerView.Adapter<EditActionListAdapter.EditActionViewHolder>(){
+    lateinit var addType: ActionType
 
     fun setUp(actions: List<Action>){
+        C.log("adapter setup")
         val oldList = actionList
         actionList = actions.toMutableList()
 
@@ -47,13 +51,12 @@ class EditActionListAdapter(
     // **Cough**
     fun onItemMove(fromPos: Int, toPos: Int){
         notifyItemMoved(fromPos, toPos)
-        val buffer = actionList[fromPos]
-        actionList.removeAt(fromPos)
-        actionList.add(toPos,buffer)
-        actionEditCallback.onMove(actionList)
+        actionList = actionEditCallback.onMove(fromPos, toPos).toMutableList()
     }
     fun remove(pos: Int){
-        actionEditCallback.onDelete(actionList[pos])
+        notifyItemRemoved(pos)
+        actionList.removeAt(pos)
+        actionEditCallback.onDelete(pos)
     }
 
     inner class EditActionViewHolder(private val binding: ItemEditActionBinding): RecyclerView.ViewHolder(
@@ -61,6 +64,9 @@ class EditActionListAdapter(
     ){
         lateinit var action: Action
         init {
+            binding.textViewActionIndex.setOnClickListener {
+                onColorClicked(action)
+            }
             binding.editTextTextMM.addTextChangedListener{
                 actionEditCallback.onMinutesEdit(action, it.toString())
             }
@@ -128,7 +134,7 @@ class EditActionListAdapter(
         fun onNameEdit(action: Action, newName: String)
         fun onSecondsEdit(action: Action, seconds: String)
         fun onMinutesEdit(action: Action, minutes: String)
-        fun onMove(actions: List<Action>)
-        fun onDelete(action: Action)
+        fun onMove(posFrom: Int, posTo: Int): List<Action>
+        fun onDelete(pos: Int)
     }
 }

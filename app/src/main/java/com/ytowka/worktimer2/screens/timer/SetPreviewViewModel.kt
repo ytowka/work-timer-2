@@ -1,4 +1,4 @@
-package com.ytowka.worktimer2.screens.viewmodels
+package com.ytowka.worktimer2.screens.timer
 
 import android.content.ComponentName
 import android.content.Context
@@ -11,9 +11,8 @@ import com.ytowka.worktimer2.data.Repository
 import com.ytowka.worktimer2.data.database.SetDao
 import com.ytowka.worktimer2.data.models.Action
 import com.ytowka.worktimer2.data.models.ActionSet
-import com.ytowka.worktimer2.services.TimerService
 import com.ytowka.worktimer2.utils.C
-import com.ytowka.worktimer2.utils.C.Companion.observeOnce
+import com.ytowka.worktimer2.utils.timers.ActionsTimerSequence
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -46,6 +45,12 @@ class SetPreviewViewModel @Inject constructor(
 
     private var actionSetLiveData = MutableLiveData<ActionSet>()
 
+    private val timerSequenceObserver = Observer<ActionsTimerSequence>  {
+        if(it != null){
+            actionSetLiveData.value = it.actionSet
+        }
+    }
+
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
 
@@ -54,11 +59,7 @@ class SetPreviewViewModel @Inject constructor(
             serviceInited = true
             timerService!!.isAppOpened = isAppOpened
             Log.i("debug","service connected to viewModel, ${timerService!!.connectedCount}")
-            timerService!!.timerSequenceLiveData.observeOnce {
-                if(it != null){
-                    actionSetLiveData.value = it.actionSet
-                }
-            }
+            timerService!!.timerSequenceLiveData.observeForever(timerSequenceObserver)
         }
         override fun onServiceDisconnected(p0: ComponentName?) {
             Log.i("debug","service disconnected from preview viewModel")
@@ -114,4 +115,8 @@ class SetPreviewViewModel @Inject constructor(
     }
     fun pauseTimer() = timerService!!.pauseTimer()
     fun resumeTimer() = timerService!!.resumeTimer()
+    override fun onCleared() {
+        timerService!!.timerSequenceLiveData.removeObserver(timerSequenceObserver)
+        super.onCleared()
+    }
 }

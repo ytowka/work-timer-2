@@ -1,10 +1,10 @@
 package com.ytowka.worktimer2.utils
 
-import android.content.Context
 import android.graphics.Color
+import android.util.Log
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import com.ytowka.worktimer2.R
 import com.ytowka.worktimer2.data.Repository
 import com.ytowka.worktimer2.data.models.Action
 import com.ytowka.worktimer2.data.models.SetInfo
@@ -61,6 +61,7 @@ class C {
                 (r + g + b) / 3 >= lightThreshold
             }
         }
+        fun Fragment.getTheme() = requireActivity().theme!!
 
         fun Long.toStringTime(): String {
             val minutes = TimeUnit.MILLISECONDS.toMinutes(this)
@@ -73,11 +74,20 @@ class C {
             string += seconds
             return string
         }
+        fun String.safeToInt(onError: Int = 0) = try {
+                toInt()
+            }catch (e: NumberFormatException){
+                0
+            }
+
 
         fun getStringDuration(time: Long): String{
             val minutes = time / 60
             val seconds = time % 60
             return "${if (minutes<10) "0${minutes}" else minutes}:${if (seconds<10) "0${seconds}" else seconds}"
+        }
+        fun log(text: String, tagPostfix: String = ""){
+            Log.i("debug$tagPostfix",text)
         }
     }
 }

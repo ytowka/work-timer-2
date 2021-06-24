@@ -1,4 +1,4 @@
-package com.ytowka.worktimer2.services
+package com.ytowka.worktimer2.screens.timer
 
 
 import android.app.*
@@ -8,16 +8,20 @@ import android.os.Binder
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.ytowka.worktimer2.app.MainActivity
 import com.ytowka.worktimer2.R
 import com.ytowka.worktimer2.data.Repository
 import com.ytowka.worktimer2.data.models.Action
+import com.ytowka.worktimer2.data.models.ActionSet
 import com.ytowka.worktimer2.utils.C
 import com.ytowka.worktimer2.utils.C.Companion.observeOnce
 import com.ytowka.worktimer2.utils.C.Companion.toStringTime
 import com.ytowka.worktimer2.utils.timers.ActionsTimerSequence
 import dagger.hilt.android.AndroidEntryPoint
+import java.lang.NullPointerException
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -35,10 +39,25 @@ class TimerService : Service() {
     }
 
     val timerSequenceLiveData =  MutableLiveData<ActionsTimerSequence>()
+
     val isLaunchedLiveData = MutableLiveData<Boolean>()
 
     var connectedCount = 0
     private set
+
+    private var actionSetObserver = Observer<ActionSet>{
+        try {
+            if(it.actions.isNotEmpty()){
+                this.timerSequenceLiveData.value = ActionsTimerSequence(it)
+            }
+        }catch (e: NullPointerException){
+            hideNotification()
+            stopSelf()
+        }
+
+
+    }
+    private var actionSetLiveData: LiveData<ActionSet>? = null
 
     override fun onBind(intent: Intent?): IBinder {
         connectedCount ++
@@ -48,14 +67,11 @@ class TimerService : Service() {
                 if (timerSequenceLiveData.value == null) {
                     createForegroundNotification()
                     val setId = intent.extras!![C.EXTRA_SET_ID] as Long
-                    repository.getSet(setId).observeOnce {
-                        this.timerSequenceLiveData.value = ActionsTimerSequence(it)
-                    }
+                    actionSetLiveData = repository.getSet(setId)
+                    actionSetLiveData!!.observeForever(actionSetObserver)
                 }
-                Log.i("service_debug","bind service create timer")
             }
             C.ACTION_CHECK_IS_LAUNCHED ->{
-                Log.i("service_debug","bind service check timer state: ${timerSequenceLiveData.value != null}")
                 isLaunchedLiveData.value = timerSequenceLiveData.value != null
             }
         }
@@ -72,7 +88,7 @@ class TimerService : Service() {
     private var actionNotification: Notification? = null
 
 
-    fun hideNotification(){
+    private fun hideNotification(){
         stopForeground(true)
         stopSelf()
     }
@@ -182,14 +198,6 @@ class TimerService : Service() {
         }
     }
 
-    /*
-
-    timerSequenceLiveData.observeOnce { timerSequence ->
-
-    }
-
-    */
-
     fun isStarted() = timerSequenceLiveData.value!!.started
     fun isRestarted() = timerSequenceLiveData.value!!.restarted
 
@@ -247,13 +255,12 @@ class TimerService : Service() {
         get() = this@TimerService
     }
     override fun onDestroy() {
-        Log.i("service_debug","destroy service")
+        actionSetLiveData?.removeObserver(actionSetObserver)
         super.onDestroy()
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
         connectedCount --
-        Log.i("service_debug","unbind service")
         return super.onUnbind(intent)
     }
 }

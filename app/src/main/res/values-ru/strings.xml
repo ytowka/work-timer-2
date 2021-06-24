@@ -21,4 +21,11 @@
     <string name="editing">редактирование</string>
     <string name="creating">создание</string>
     <string name="action">действие</string>
+    <string name="name">название</string>
+    <string name="exact_time">точное время</string>
+    <string name="choose_color">Выберете цвет</string>
+    <string name="apply">применить</string>
+    <string name="timer_name">название таймера</string>
+    <string name="symbols">символы</string>
+    <string name="empty_name">пустое имя</string>
 </resources>

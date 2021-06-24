@@ -8,7 +8,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.ytowka.worktimer2.services.TimerService
+import com.ytowka.worktimer2.screens.timer.TimerService
 import com.ytowka.worktimer2.utils.C
 import com.ytowka.worktimer2.utils.C.Companion.observeOnce
 import dagger.hilt.android.lifecycle.HiltViewModel
