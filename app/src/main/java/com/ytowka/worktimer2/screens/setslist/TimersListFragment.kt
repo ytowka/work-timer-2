@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -15,6 +16,7 @@ import com.ytowka.worktimer2.R
 import com.ytowka.worktimer2.adapters.SetListAdapter
 import com.ytowka.worktimer2.data.models.ActionSet
 import com.ytowka.worktimer2.databinding.FragmentTimersListBinding
+import com.ytowka.worktimer2.utils.C
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -88,10 +90,23 @@ class TimersListFragment : Fragment() {
 
         binding.toolbar.menu.clear()
         binding.toolbar.inflateMenu(R.menu.setlist)
+
+
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.app_bar_search -> {
 
+                }
+                R.id.sort ->{
+                    val sortText = when(viewModel.sort()){
+                        TimerListViewModel.SortType.NAME ->{
+                            getString(R.string.name_sort)
+                        }
+                        TimerListViewModel.SortType.OPEN ->{
+                            getString(R.string.open_sort)
+                        }
+                    }
+                        Toast.makeText(requireContext(),sortText,Toast.LENGTH_SHORT).show()
                 }
                 R.id.appbar_cancel -> {
                     setEditingMode(false)
@@ -114,7 +129,13 @@ class TimersListFragment : Fragment() {
 
             override fun onQueryTextChange(p0: String?): Boolean {
                 val list = viewModel.getSetList().value
-                if (list != null) setListAdapter.update(list.filterActions(p0 ?: ""))
+
+                if (list != null) {
+                    val filteredList = list.filterActions(p0 ?: "")
+                    setListAdapter.update(filteredList)
+                    C.log(filteredList.toString())
+                }
+
                 binding.listSets.scrollToPosition(0)
                 return true
             }
@@ -127,6 +148,7 @@ class TimersListFragment : Fragment() {
         viewModel.getSetList().observe(viewLifecycleOwner) {
             if (!viewModel.selectingMode) {
                 setListAdapter.update(it)
+                C.log("update list")
             }
         }
     }

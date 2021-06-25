@@ -15,12 +15,13 @@ import com.ytowka.worktimer2.utils.C
 import com.ytowka.worktimer2.utils.timers.ActionsTimerSequence
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SetPreviewViewModel @Inject constructor(
     private val repository: Repository,
-    private val setDao: SetDao,
     @ApplicationContext val context: Context
 ) : ViewModel() {
 
@@ -36,12 +37,9 @@ class SetPreviewViewModel @Inject constructor(
     var serviceInited = false
     private set
 
-    fun isStarted() = timerService!!.isStarted()
-    fun isRestarted() = timerService!!.isRestarted()
+    private var setId = -1L
 
-    private var serviceBinder: TimerService.MyBinder? = null
     private var timerService: TimerService? = null
-
 
     private var actionSetLiveData = MutableLiveData<ActionSet>()
 
@@ -53,26 +51,24 @@ class SetPreviewViewModel @Inject constructor(
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
-
-            serviceBinder = p1 as TimerService.MyBinder
-            timerService = serviceBinder!!.service
+            val serviceBinder = p1 as TimerService.MyBinder
+            timerService = serviceBinder.service
             serviceInited = true
             timerService!!.isAppOpened = isAppOpened
-            Log.i("debug","service connected to viewModel, ${timerService!!.connectedCount}")
             timerService!!.timerSequenceLiveData.observeForever(timerSequenceObserver)
         }
         override fun onServiceDisconnected(p0: ComponentName?) {
-            Log.i("debug","service disconnected from preview viewModel")
-            serviceBinder = null
             timerService = null
         }
     }
     fun setup(setId: Long): LiveData<ActionSet>{
-        val intentService = Intent(context, TimerService::class.java)
-        intentService.putExtra(C.EXTRA_SET_ID, setId)
-        intentService.action = C.ACTION_INIT_TIMER
-        Log.i("debug","viewmodel binds service")
-        context.bindService(intentService, serviceConnection, Context.BIND_AUTO_CREATE)
+        if(this.setId == -1L){
+            val intentService = Intent(context, TimerService::class.java)
+            intentService.putExtra(C.EXTRA_SET_ID, setId)
+            intentService.action = C.ACTION_INIT_TIMER
+            context.bindService(intentService, serviceConnection, Context.BIND_AUTO_CREATE)
+            this.setId = setId
+        }
         return actionSetLiveData
     }
 
@@ -96,6 +92,8 @@ class SetPreviewViewModel @Inject constructor(
             }
         }
     }
+    fun isStarted() = timerService!!.isStarted()
+    fun isRestarted() = timerService!!.isRestarted()
 
     fun setOnActionFinishCallback(callback: (Action) -> Unit) = timerService?.setOnActionFinishCallback(callback) ?: {throw Exception("timer service not inited")}
     fun setupCallbacks(progressBarUpdate: (Long) -> Unit, timeTextUpdate: (Long) -> Unit) = timerService?.setupCallbacks(progressBarUpdate,timeTextUpdate) ?: {throw Exception("timer service not inited")}
@@ -115,7 +113,14 @@ class SetPreviewViewModel @Inject constructor(
     }
     fun pauseTimer() = timerService!!.pauseTimer()
     fun resumeTimer() = timerService!!.resumeTimer()
+
     override fun onCleared() {
+        actionSetLiveData.value?.setInfo?.let {
+            it.lastOpen = System.currentTimeMillis()
+            GlobalScope.launch {
+                repository.updateSetInfo(it)
+            }
+        }
         timerService!!.timerSequenceLiveData.removeObserver(timerSequenceObserver)
         super.onCleared()
     }

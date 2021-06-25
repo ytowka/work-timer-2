@@ -1,6 +1,5 @@
 package com.ytowka.worktimer2.data
 
-import android.content.Context
 import androidx.lifecycle.LiveData
 import com.ytowka.worktimer2.data.database.ActionDao
 import com.ytowka.worktimer2.data.database.ActionTypesDao
@@ -15,15 +14,12 @@ class LocalRepository(val setDao: SetDao, val actionDao: ActionDao, val actionTy
     override fun getSets(): LiveData<List<ActionSet>> {
        return setDao.getSetsAsLiveData()
     }
-
     override fun getSet(id: Long): LiveData<ActionSet> {
         return setDao.getSetAsLiveData(id)
     }
-
     override suspend fun getSetInfo(id: Int): SetInfo {
         return setDao.getSetInfo(id)
     }
-
     override suspend fun deleteSet(actionSet: ActionSet) {
         setDao.deleteSet(actionSet)
     }
@@ -31,11 +27,9 @@ class LocalRepository(val setDao: SetDao, val actionDao: ActionDao, val actionTy
     override fun getActions(setId: Int): LiveData<List<Action>> {
         return actionDao.getSetActionsAsLiveData(setId)
     }
-
     override fun getAction(actionId: Long): LiveData<Action> {
         return actionDao.getActionAsLiveData(actionId)
     }
-
     override suspend fun insertAction(action: Action) : Long{
         action.actionId = actionDao.insertAction(action)
         return action.actionId
@@ -46,11 +40,9 @@ class LocalRepository(val setDao: SetDao, val actionDao: ActionDao, val actionTy
     override suspend fun deleteAction(action: Action) {
         actionDao.deleteAction(action)
     }
-
     override suspend fun deleteActions(setId: Long) {
         actionDao.deleteSetActions(setId)
     }
-
     override fun getActionTypes(): LiveData<List<ActionType>> {
         return actionTypesDao.getActionTypes()
     }
@@ -75,12 +67,13 @@ class LocalRepository(val setDao: SetDao, val actionDao: ActionDao, val actionTy
         setDao.updateSetInfo(setInfo)
     }
 
-    override suspend fun insertActionSet(actionSet: ActionSet): Long {
+    override suspend fun insertActionSet(actionSet: ActionSet, insertNew: Boolean): Long {
         val setInfoId = setDao.insertSetInfo(actionSet.setInfo)
         actionSet.setInfo.setId = setInfoId
 
         actionSet.actions.forEach {
             it.setId = setInfoId
+            if (!insertNew) it.actionId = 0 // it needs to for right action positions in list
             it.actionId = actionDao.insertAction(it)
         }
         return setInfoId

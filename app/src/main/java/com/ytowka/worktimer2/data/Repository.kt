@@ -27,5 +27,5 @@ interface Repository {
     suspend fun deleteSetInfo(setInfo: SetInfo)
     suspend fun updateSetInfo(setInfo: SetInfo)
 
-    suspend fun insertActionSet(actionSet: ActionSet): Long
+    suspend fun insertActionSet(actionSet: ActionSet, insertNew: Boolean): Long
 }

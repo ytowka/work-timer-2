@@ -28,4 +28,6 @@
     <string name="timer_name">название таймера</string>
     <string name="symbols">символы</string>
     <string name="empty_name">пустое имя</string>
+    <string name="name_sort">сортировка по имени</string>
+    <string name="open_sort">сортировка по порядку открытия</string>
 </resources>

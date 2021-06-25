@@ -7,6 +7,5 @@ import androidx.room.PrimaryKey
 data class SetInfo (
     @PrimaryKey(autoGenerate = true) var setId: Long = 0,
     var name: String,
-){
-    fun clone(name: String = this.name): SetInfo = SetInfo(this.setId, name)
-}
+    var lastOpen: Long = System.currentTimeMillis()
+)

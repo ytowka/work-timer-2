@@ -29,6 +29,8 @@
     <string name="timer_name">timer name</string>
     <string name="symbols">symbols</string>
     <string name="empty_name">empty name</string>
+    <string name="name_sort">sort by name</string>
+    <string name="open_sort">sort by opens order</string>
     <!-- TODO: Remove or change this placeholder text -->
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

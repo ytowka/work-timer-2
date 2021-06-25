@@ -27,7 +27,8 @@ class EditingViewModel @Inject constructor(
 ) : ViewModel(), EditActionListAdapter.ActionEditCallback {
 
 
-    private var setId = -2L // value -2 means viewmodel is not initialized, -1 means viewmodel is creating new a set
+    private var setId =
+        -2L // value -2 means viewmodel is not initialized, -1 means viewmodel is creating new a set
     lateinit var currAction: Action
 
     @Inject
@@ -45,12 +46,16 @@ class EditingViewModel @Inject constructor(
     var isChanged = false
         private set
 
+    val isEmpty: Boolean
+        get() {
+            return actions.isEmpty()
+        }
 
     private val initializationLiveData = MutableLiveData<Boolean>()
 
     //if set is new it will return `true`
     fun initViewModel(setId: Long): LiveData<Boolean> {
-        if(this.setId == -2L){
+        if (this.setId == -2L) {
             this.setId = setId
             if (setId == -1L) {
                 actions = mutableListOf()
@@ -89,15 +94,15 @@ class EditingViewModel @Inject constructor(
             if (isChanged) {
                 GlobalScope.launch {
 
-                    // it needs to for right action positions in list
-                    for (i in actions) {
+
+                    /*for (i in actions) {
                         i.actionId = 0
-                    }
+                    }*/
                     repository.deleteActions(setInfo.setId)
 
-                    repository.insertActionSet(ActionSet(setInfo, actions))
+                    repository.insertActionSet(ActionSet(setInfo, actions), false)
                     liveData.postValue(false)
-                    withContext(Dispatchers.Main){
+                    withContext(Dispatchers.Main) {
                         updateActions()
                     }
                 }
@@ -125,17 +130,20 @@ class EditingViewModel @Inject constructor(
     override fun onMinutesEdit(action: Action, minutes: String) {
         minutesEdit(minutes, action)
     }
-    override fun onMove(posFrom: Int, posTo: Int): List<Action>{
+
+    override fun onMove(posFrom: Int, posTo: Int): List<Action> {
         val buffer = actions[posFrom]
         actions.removeAt(posFrom)
-        actions.add(posTo,buffer)
+        actions.add(posTo, buffer)
         isChanged = true
         return actions
     }
+
     override fun onDelete(pos: Int) {
         actions.removeAt(pos)
         isChanged = true
     }
+
     fun secondsEdit(seconds: String, action: Action = currAction) {
         val newDuration: Long = action.duration - action.duration % 60 + seconds.safeToInt()
         action.duration = newDuration
@@ -147,6 +155,7 @@ class EditingViewModel @Inject constructor(
         action.duration = minutes.safeToInt() * 60 + seconds
         isChanged = true
     }
+
     fun newAction(index: Int) {
         val action = Action("", 60, 0, true, 0, setInfo.setId).apply {
             applyType(defaultTypes[1])
@@ -156,7 +165,6 @@ class EditingViewModel @Inject constructor(
         updateActions()
         isChanged = true
     }
-
 
 
     // --------------------------------action editor methods-----------------------------------------------------------------------------
@@ -207,7 +215,8 @@ class EditingViewModel @Inject constructor(
         actions.remove(currAction)
         isChanged = true
     }
-    private fun updateActions(){
+
+    private fun updateActions() {
         _actionsLiveData.value = actions.toList()
     }
 }

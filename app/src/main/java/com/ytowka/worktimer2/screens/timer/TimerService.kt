@@ -21,6 +21,8 @@ import com.ytowka.worktimer2.utils.C.Companion.observeOnce
 import com.ytowka.worktimer2.utils.C.Companion.toStringTime
 import com.ytowka.worktimer2.utils.timers.ActionsTimerSequence
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.lang.NullPointerException
 import javax.inject.Inject
 
@@ -33,7 +35,7 @@ class TimerService : Service() {
     private var onActionFinishedCallback: (Action) -> Unit = {}
     var isAppOpened = true
     set(value) {
-        Log.i("notif_debug","app ${if (value) "opened" else "closed"}")
+        //Log.i("notif_debug","app ${if (value) "opened" else "closed"}")
         field = value
         setOnActionFinishCallback(onActionFinishedCallback, value)
     }

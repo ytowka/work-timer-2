@@ -8,4 +8,8 @@
         android:title="@string/search"
         app:showAsAction="always"
         app:actionViewClass="androidx.appcompat.widget.SearchView" />
+    <item android:id="@+id/sort"
+        android:icon="@drawable/ic_sort"
+        android:title="sort"
+        app:showAsAction="ifRoom"/>
 </menu>

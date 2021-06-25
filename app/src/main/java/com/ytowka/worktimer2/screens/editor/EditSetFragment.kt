@@ -43,14 +43,18 @@ class EditSetFragment : Fragment() {
 
     private val backPressedCallback = object : OnBackPressedCallback(true){
         override fun handleOnBackPressed() {
-            buildDialog {
-                binding.progressBarSavingAction.visibility = View.VISIBLE
-                viewModel.commitChanges().observe(viewLifecycleOwner){
-                    (requireActivity() as EditorActivity).exit()
+            if(viewModel.isChanged && !viewModel.isEmpty){
+                buildDialog {
+                    binding.progressBarSavingAction.visibility = View.VISIBLE
+                    viewModel.commitChanges().observe(viewLifecycleOwner){
+                        (requireActivity() as EditorActivity).exit()
+                    }
+                }.apply {
+                    show()
+                    window?.setBackgroundDrawableResource(R.drawable.dialog_bg);
                 }
-            }.apply {
-                show()
-                window?.setBackgroundDrawableResource(R.drawable.dialog_bg);
+            }else{
+                (requireActivity() as EditorActivity).exit()
             }
         }
     }
