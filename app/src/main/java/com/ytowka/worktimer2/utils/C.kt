@@ -22,6 +22,7 @@ class C {
 
         const val EXTRA_SET_ID = "${appTag}TIMER_SERVICE_SET_ID"
         const val ACTION_INIT_TIMER = "${appTag}TIMER_SERVICE_INIT_TIMER"
+        const val ACTION_START_SERVICE = "${appTag}TIMER_SERVICE_INIT_TIMER"
         const val ACTION_CHECK_IS_LAUNCHED = "${appTag}TIMER_SERVICE_CHECK_IS_TIMER_LAUNCHED"
         const val ACTION_SHOW_TIMER_FRAGMENT = "${appTag}SHOW_TIMER_FRAGMENT"
 

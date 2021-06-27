@@ -133,7 +133,6 @@ class TimersListFragment : Fragment() {
                 if (list != null) {
                     val filteredList = list.filterActions(p0 ?: "")
                     setListAdapter.update(filteredList)
-                    C.log(filteredList.toString())
                 }
 
                 binding.listSets.scrollToPosition(0)
@@ -148,7 +147,6 @@ class TimersListFragment : Fragment() {
         viewModel.getSetList().observe(viewLifecycleOwner) {
             if (!viewModel.selectingMode) {
                 setListAdapter.update(it)
-                C.log("update list")
             }
         }
     }

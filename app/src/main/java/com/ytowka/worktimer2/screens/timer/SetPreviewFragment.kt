@@ -1,5 +1,7 @@
 package com.ytowka.worktimer2.screens.timer
 
+import android.content.Context
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.transition.TransitionInflater
@@ -35,12 +37,31 @@ class SetPreviewFragment : Fragment() {
 
     private val args: SetPreviewFragmentArgs by navArgs()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = FragmentSetPreviewBinding.inflate(inflater)
         viewmodel = ViewModelProvider(this).get(SetPreviewViewModel::class.java)
         val setId = args.setId
 
-        viewmodel.setup(setId).observe(viewLifecycleOwner){
+        val serviceStartIntent = Intent(requireActivity(), TimerService::class.java)
+        requireContext().startService(serviceStartIntent)
+
+        val serviceIntent = Intent(requireActivity(), TimerService::class.java)
+
+        serviceIntent.putExtra(C.EXTRA_SET_ID, setId)
+        serviceIntent.action = C.ACTION_INIT_TIMER
+
+
+        requireActivity().bindService(
+            serviceIntent,
+            viewmodel.serviceConnection,
+            Context.BIND_AUTO_CREATE
+        )
+
+        viewmodel.actionSetLiveData.observe(viewLifecycleOwner){
             initViews(it)
         }
 
@@ -50,39 +71,58 @@ class SetPreviewFragment : Fragment() {
 
         val dialog = buildDialog()
 
-        val backPressedCallback = object : OnBackPressedCallback(true){
+        val backPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if(viewmodel.isStarted()){
+                if (viewmodel.isStarted()) {
                     viewmodel.pauseTimer()
                     setPauseButtonIcon(false)
                     dialog.show()
-                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(resources.getColor(R.color.colorOnSurface,requireContext().theme))
-                    dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(resources.getColor(R.color.colorOnSurface,requireContext().theme))
+                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(
+                        resources.getColor(
+                            R.color.colorOnSurface,
+                            requireContext().theme
+                        )
+                    )
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(
+                        resources.getColor(
+                            R.color.colorOnSurface,
+                            requireContext().theme
+                        )
+                    )
                     dialog.window?.setBackgroundDrawableResource(R.drawable.dialog_bg);
-                }else{
-                    viewmodel.stopTimer()
+                } else {
+                    Log.i("fragment_debug","unbind service")
+                    requireContext().unbindService(viewmodel.serviceConnection)
                     findNavController().navigateUp()
                 }
             }
         }
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,backPressedCallback);
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            backPressedCallback
+        );
         return binding.root
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         val transition = TransitionInflater.from(context).inflateTransition(R.transition.complex)
         sharedElementEnterTransition = transition
         postponeEnterTransition()
     }
 
-    private fun setPauseButtonIcon(pause: Boolean){
-        binding.pauseButton.setImageDrawable(ContextCompat.getDrawable(requireContext(), if (pause) R.drawable.ic_pause else R.drawable.ic_play_arrow))
+    private fun setPauseButtonIcon(pause: Boolean) {
+        binding.pauseButton.setImageDrawable(
+            ContextCompat.getDrawable(
+                requireContext(),
+                if (pause) R.drawable.ic_pause else R.drawable.ic_play_arrow
+            )
+        )
     }
-    private fun buildDialog(): AlertDialog{
+
+    private fun buildDialog(): AlertDialog {
         val builder: AlertDialog.Builder? = activity?.let {
-            AlertDialog.Builder(it,R.style.roundedDialog)
+            AlertDialog.Builder(it, R.style.roundedDialog)
         }
         builder?.setOnCancelListener {
             viewmodel.resumeTimer()
@@ -90,27 +130,39 @@ class SetPreviewFragment : Fragment() {
         }
         builder?.setMessage(R.string.timer_exit_confirmation)
         builder?.apply {
-            setPositiveButton(R.string.cancel
+            setPositiveButton(
+                R.string.cancel
             ) { dialog, id ->
                 viewmodel.resumeTimer()
                 setPauseButtonIcon(true)
             }
-            setNegativeButton(R.string.exit
+            setNegativeButton(
+                R.string.exit
             ) { dialog, id ->
-                viewmodel.stopTimer()
+                Log.i("fragment_debug","unbind service")
+                requireContext().unbindService(viewmodel.serviceConnection)
                 findNavController().navigateUp()
             }
         }
         val dialog: AlertDialog? = builder?.create()
         return dialog!!
     }
-    private fun initViews(actionSet: ActionSet){
+
+    private fun initViews(actionSet: ActionSet) {
         binding.rvPActionList.layoutManager = LinearLayoutManager(context)
-        val adapter = PreviewActionListAdapter{
+        val adapter = PreviewActionListAdapter {
             if (viewmodel.isStarted()) {
                 viewmodel.jumpTo(it)
             }
         }
+        if (viewmodel.isStarted()) {
+            binding.motionLayoutPreview.transitionToEnd()
+            //binding.motionLayoutPreview.setState(R.id.endCS, ConstraintSet.MATCH_CONSTRAINT, ConstraintSet.MATCH_CONSTRAINT)
+            //binding.motionLayoutPreview.progress = 1.0f
+            setPauseButtonIcon(viewmodel.paused || viewmodel.currentAction().exactTimeDefine)
+            adapter.currentAction = viewmodel.currentAction()
+        }
+
         binding.rvPActionList.adapter = adapter
         binding.btnPEdit.setOnClickListener {
             val extras = FragmentNavigatorExtras(binding.btnPEdit to "edit")
@@ -118,23 +170,15 @@ class SetPreviewFragment : Fragment() {
             findNavController().navigate(action, extras)
         }
 
-        if(viewmodel.isStarted()){
-            binding.motionLayoutPreview.transitionToEnd()
-        }
+
         binding.textSetNameTitle.text = actionSet.setInfo.name
-        Log.i("debug",actionSet.setInfo.name)
+        Log.i("debug", actionSet.setInfo.name)
         binding.textTimeOnButton.text = actionSet.getStringDuration()
         binding.currentActionTime.text = (actionSet.actions.first().duration * 1000).toStringTime()
 
         adapter.setup(actionSet.actions)
 
-        if (viewmodel.isStarted()) {
-            binding.motionLayoutPreview.setState(R.id.endCS, ConstraintSet.MATCH_CONSTRAINT, ConstraintSet.MATCH_CONSTRAINT)
-            binding.motionLayoutPreview.progress = 1.0f
-            setPauseButtonIcon(viewmodel.paused || viewmodel.currentAction().exactTimeDefine)
-        }
         initCard(viewmodel.currentAction())
-        if (viewmodel.isStarted()) adapter.currentAction = viewmodel.currentAction()
 
         binding.btnPStart.setOnClickListener {
             if (viewmodel.clickStartBtn()) {
@@ -144,13 +188,18 @@ class SetPreviewFragment : Fragment() {
         binding.pauseButton.setOnClickListener {
             val launchFlag = viewmodel.clickStartBtn()
             setPauseButtonIcon(launchFlag)
-            if(!viewmodel.currentAction().exactTimeDefine){
+            if (!viewmodel.currentAction().exactTimeDefine) {
                 setPauseButtonIcon(false)
             }
-            if(viewmodel.currentAction() == viewmodel.finishAction){
-                binding.pauseButton.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_replay))
+            if (viewmodel.currentAction() == viewmodel.finishAction) {
+                binding.pauseButton.setImageDrawable(
+                    ContextCompat.getDrawable(
+                        requireContext(),
+                        R.drawable.ic_replay
+                    )
+                )
             }
-            if(viewmodel.isRestarted()){
+            if (viewmodel.isRestarted()) {
                 setPauseButtonIcon(false)
             }
         }
@@ -169,33 +218,57 @@ class SetPreviewFragment : Fragment() {
             binding.progressBar2.progress = binding.progressBar2.max
             adapter.currentAction = action
             setPauseButtonIcon(action.exactTimeDefine)
-            binding.currentActionTime.text = if (action.exactTimeDefine) (action.duration * 1000).toStringTime() else "0"
+            binding.currentActionTime.text =
+                if (action.exactTimeDefine) (action.duration * 1000).toStringTime() else "0"
         }
         viewmodel.setOnSequenceFinish {
             adapter.currentAction = null
             binding.rvPActionList.scrollToPosition(0)
-            binding.pauseButton.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_play_arrow))
+            binding.pauseButton.setImageDrawable(
+                ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.ic_play_arrow
+                )
+            )
         }
         startPostponedEnterTransition()
     }
+
     private fun initCard(action: Action) {
         val isLight = C.isColorLight(action.color)
 
         binding.progressBar2.max = (action.duration.toLong() * 1000).toInt()
         binding.progressBar2.progress = viewmodel.getCurrentTimerTime().toInt()
-        binding.currentActionTime.text = if (action.exactTimeDefine) viewmodel.getCurrentTimerTime().toStringTime() else "0"
+        binding.currentActionTime.text =
+            if (action.exactTimeDefine) viewmodel.getCurrentTimerTime().toStringTime() else "0"
 
         binding.currentActionTime.backgroundTintList = ColorStateList.valueOf(action.color)
         binding.currentActionName.backgroundTintList = ColorStateList.valueOf(action.color)
         binding.pauseButton.backgroundTintList = ColorStateList.valueOf(action.color)
         binding.progressBar2.progressTintList = ColorStateList.valueOf(action.color)
 
-        binding.currentActionName.setTextColor(ContextCompat.getColor(requireContext(), if (isLight) R.color.on_light else R.color.on_dark))
-        binding.currentActionTime.setTextColor(ContextCompat.getColor(requireContext(), if (isLight) R.color.on_light else R.color.on_dark))
-        binding.pauseButton.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), if (isLight) R.color.on_light else R.color.on_dark))
+        binding.currentActionName.setTextColor(
+            ContextCompat.getColor(
+                requireContext(),
+                if (isLight) R.color.on_light else R.color.on_dark
+            )
+        )
+        binding.currentActionTime.setTextColor(
+            ContextCompat.getColor(
+                requireContext(),
+                if (isLight) R.color.on_light else R.color.on_dark
+            )
+        )
+        binding.pauseButton.imageTintList = ColorStateList.valueOf(
+            ContextCompat.getColor(
+                requireContext(),
+                if (isLight) R.color.on_light else R.color.on_dark
+            )
+        )
 
         binding.currentActionName.text = action.name
     }
+
     override fun onStart() {
         viewmodel.isAppOpened = true
         super.onStart()

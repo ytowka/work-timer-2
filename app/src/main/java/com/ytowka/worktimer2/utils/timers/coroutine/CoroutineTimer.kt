@@ -11,15 +11,18 @@ open class CoroutineTimer(
     timeUnit: TimeUnit = TimeUnit.SECONDS
 ) : Timer {
     companion object {
+
+        // how frequently timer will check callbacks
         const val msStep = 10L
     }
 
     private val msDuration = timeUnit.toMillis(duration)
 
     private var started = false
-    private var timerJob: Job? = null
     private var paused = false
     private var msPassed = 0L
+
+    private var timerJob: Job? = null
     private var delta = msStep
     override var onFinished = {}
 
@@ -64,7 +67,7 @@ open class CoroutineTimer(
                 }
             } finally {
                 withContext(Dispatchers.Main) {
-                    onFinished()
+                    this@CoroutineTimer.onFinished()
                 }
                 stop(true, true)
             }
@@ -79,6 +82,7 @@ open class CoroutineTimer(
         paused = false
     }
 
+    // `isSkipped` argument equals `true` when we skipped this timer so we don't need to execute onFinish() callback
     override fun stop(isSkipped: Boolean, clearCallbacks: Boolean) {
         if (clearCallbacks) clearCallBacks()
         started = false

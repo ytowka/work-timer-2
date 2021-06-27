@@ -18,33 +18,22 @@ import javax.inject.Inject
 @HiltViewModel
 class SplashViewModel @Inject constructor(@ApplicationContext context: Context) : ViewModel(){
 
-    private var serviceBinder: TimerService.MyBinder? = null
     var service: TimerService? = null
 
     var isTimerInitedLiveData = MutableLiveData<Boolean>()
 
-    private val serviceConnection = object : ServiceConnection {
+    val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
-            Log.i("debug","service connected to splash viewModel")
-            serviceBinder = p1 as TimerService.MyBinder
-            service = serviceBinder!!.service
+            val serviceBinder = p1 as TimerService.MyBinder
+            service = serviceBinder.service
             service!!.isLaunchedLiveData.observeOnce {
                 isTimerInitedLiveData.value = it
-                Log.i("debug","service disconnected from splash viewModel")
-                context.unbindService(this)
             }
+            Log.i("debug","service connected to splash viewModel")
         }
-
         override fun onServiceDisconnected(p0: ComponentName?) {
             Log.i("debug","service disconnected from splash viewModel")
-            serviceBinder = null
             service = null
         }
-    }
-    init {
-        val intentService = Intent(context, TimerService::class.java)
-        intentService.putExtra(C.EXTRA_SET_ID, -1)
-        intentService.action = C.ACTION_CHECK_IS_LAUNCHED
-        context.bindService(intentService, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 }

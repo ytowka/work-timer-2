@@ -16,6 +16,6 @@ interface Timer {
     fun pause()
     fun resume()
 
-    fun addCallback(step: Long, callback: (timeState: Long) -> Unit)
+    fun addCallback(step: Long, callback: (time: Long) -> Unit)
     fun clearCallBacks()
 }

@@ -5,61 +5,60 @@ import com.ytowka.worktimer2.data.models.ActionSet
 import com.ytowka.worktimer2.utils.timers.coroutine.CoroutineActionTimer
 import kotlin.reflect.KClass
 
-class ActionsTimerSequence(val actionSet: ActionSet, TimerImplementationType: KClass<ActionTimer> = CoroutineActionTimer::class as KClass<ActionTimer>){
-    var onActionFinished: (ActionTimer) -> Unit = { _->}
+class ActionsTimerSequence(val actionSet: ActionSet) {
+    var onActionFinished: (ActionTimer) -> Unit = { _ -> }
     var onSequenceFinish = {}
 
     var paused = false
-    private set
+        private set
 
     var started = false
-    private set
+        private set
 
     var restarted = false
-    private set
+        private set
 
     private var currActionIndex = 0
     fun currAction() = actionSet.actions[currActionIndex]
     fun currentTimer() = timers[currActionIndex]
 
     private val timers: List<ActionTimer>
+
     init {
-        if(TimerImplementationType == CoroutineActionTimer::class){
-            timers = List(actionSet.actions.size){ index ->
-                return@List CoroutineActionTimer(actionSet.actions[index])
-            }
-        }else{
-            timers = List(actionSet.actions.size){ index ->
-                return@List CoroutineActionTimer(actionSet.actions[index])
-            }
+        timers = List(actionSet.actions.size) { index ->
+            CoroutineActionTimer(actionSet.actions[index])
         }
-        timers.forEachIndexed{id,timer ->
+
+        timers.forEachIndexed { id, timer ->
             timer.onFinished = {
-                if (id == timers.lastIndex){
+                if (id == timers.lastIndex) {
                     currActionIndex = 0
                     onActionFinished(timers[0])
                     started = false
                     restarted = true
                     onSequenceFinish()
-                }else{
-                    currActionIndex = id+1
+                } else {
+                    currActionIndex = id + 1
                     onActionFinished(currentTimer())
                     currentTimer().start()
                 }
             }
         }
     }
-    fun start(){
+
+    fun start() {
         onActionFinished(timers[currActionIndex])
         restarted = false
         timers.first().start()
         started = true
     }
-    fun pause(){
+
+    fun pause() {
         paused = true
         timers[currActionIndex].pause()
     }
-    fun jumpToAction(action: Action){
+
+    fun jumpToAction(action: Action) {
         val id = actionSet.actions.indexOf(action)
 
         timers[currActionIndex].stop(true, true)
@@ -67,20 +66,24 @@ class ActionsTimerSequence(val actionSet: ActionSet, TimerImplementationType: KC
         timers[id].start()
         onActionFinished(timers[id])
     }
-    fun jumpToAction(actionPos: Int){
+
+    fun jumpToAction(actionPos: Int) {
         timers[currActionIndex].stop(true, true)
         currActionIndex = actionPos
         onActionFinished(timers[actionPos])
         timers[actionPos].start()
     }
-    fun resume(){
+
+    fun resume() {
         paused = false
         timers[currActionIndex].resume()
     }
-    fun next(){
-        timers[currActionIndex].stop(false,true)
+
+    fun next() {
+        timers[currActionIndex].stop(false, true)
     }
-    fun stop(){
+
+    fun stop() {
         started = false
         timers[currActionIndex].stop(true)
     }

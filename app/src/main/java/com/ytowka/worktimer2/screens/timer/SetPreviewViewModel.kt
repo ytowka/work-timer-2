@@ -5,10 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
-import android.util.Log
 import androidx.lifecycle.*
 import com.ytowka.worktimer2.data.Repository
-import com.ytowka.worktimer2.data.database.SetDao
 import com.ytowka.worktimer2.data.models.Action
 import com.ytowka.worktimer2.data.models.ActionSet
 import com.ytowka.worktimer2.utils.C
@@ -34,43 +32,45 @@ class SetPreviewViewModel @Inject constructor(
         timerService?.isAppOpened = value
     }
 
-    var serviceInited = false
-    private set
-
-    private var setId = -1L
+    // -1L to connect existing service;
+    // -2L viewmodel not inited
+    private var setId = -2L
 
     private var timerService: TimerService? = null
 
-    private var actionSetLiveData = MutableLiveData<ActionSet>()
+    private val _actionSetLiveData = MutableLiveData<ActionSet>()
+    val actionSetLiveData: LiveData<ActionSet> = _actionSetLiveData
 
     private val timerSequenceObserver = Observer<ActionsTimerSequence>  {
         if(it != null){
-            actionSetLiveData.value = it.actionSet
+            _actionSetLiveData.value = it.actionSet
+            C.log("viewmodel connected ${it.started}")
         }
     }
 
-    private val serviceConnection = object : ServiceConnection {
-        override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
+    val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(componentName: ComponentName?, p1: IBinder?) {
             val serviceBinder = p1 as TimerService.MyBinder
             timerService = serviceBinder.service
-            serviceInited = true
             timerService!!.isAppOpened = isAppOpened
             timerService!!.timerSequenceLiveData.observeForever(timerSequenceObserver)
         }
         override fun onServiceDisconnected(p0: ComponentName?) {
-            timerService = null
+
         }
     }
-    fun setup(setId: Long): LiveData<ActionSet>{
-        if(this.setId == -1L){
-            val intentService = Intent(context, TimerService::class.java)
-            intentService.putExtra(C.EXTRA_SET_ID, setId)
-            intentService.action = C.ACTION_INIT_TIMER
-            context.bindService(intentService, serviceConnection, Context.BIND_AUTO_CREATE)
+    /*fun setup(setId: Long): LiveData<ActionSet>{
+        C.log("setup preview viewmodel $setId","_viewmodel")
+        if(this.setId == -2L){
+            C.log("new setup","_viewmodel")
+            val serviceIntent = Intent(context, TimerService::class.java)
+            serviceIntent.putExtra(C.EXTRA_SET_ID, setId)
+            serviceIntent.action = C.ACTION_INIT_TIMER
+            context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
             this.setId = setId
         }
         return actionSetLiveData
-    }
+    }*/
 
     //fun returns true if button starts or resumes current timer
     fun clickStartBtn(): Boolean {
@@ -106,11 +106,8 @@ class SetPreviewViewModel @Inject constructor(
     private fun start() = timerService!!.startTimers()
     private fun nextTimer() = timerService!!.nextTimer()
     private fun isTimerPaused(): Boolean = timerService!!.isTimerPaused()
-    fun stopTimer() {
-        timerService?.stopSelf()
-        context.unbindService(serviceConnection)
-        timerService!!.stopTimer()
-    }
+
+
     fun pauseTimer() = timerService!!.pauseTimer()
     fun resumeTimer() = timerService!!.resumeTimer()
 
@@ -122,6 +119,7 @@ class SetPreviewViewModel @Inject constructor(
             }
         }
         timerService!!.timerSequenceLiveData.removeObserver(timerSequenceObserver)
+        timerService = null
         super.onCleared()
     }
 }

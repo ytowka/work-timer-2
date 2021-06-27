@@ -1,5 +1,7 @@
 package com.ytowka.worktimer2.app
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -15,9 +17,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import com.ytowka.worktimer2.R
 import com.ytowka.worktimer2.screens.timer.SetPreviewFragmentDirections
+import com.ytowka.worktimer2.screens.timer.TimerService
+import com.ytowka.worktimer2.utils.C
 import com.ytowka.worktimer2.utils.C.Companion.observeOnce
 
-class SplashFragment : Fragment(R.layout.fragment_splash){
+class SplashFragment : Fragment(R.layout.fragment_splash) {
 
     lateinit var viewModel: SplashViewModel
 
@@ -27,26 +31,39 @@ class SplashFragment : Fragment(R.layout.fragment_splash){
         savedInstanceState: Bundle?
     ): View? {
 
+
         viewModel = ViewModelProvider(requireActivity() as MainActivity).get(SplashViewModel::class.java)
-        viewModel.isTimerInitedLiveData.observe(viewLifecycleOwner){
-            if(it){
+
+        val intentService = Intent(requireActivity(), TimerService::class.java)
+
+        intentService.action = C.ACTION_CHECK_IS_LAUNCHED
+
+        requireActivity().bindService(
+            intentService,
+            viewModel.serviceConnection,
+            Context.BIND_AUTO_CREATE
+        )
+
+
+        viewModel.isTimerInitedLiveData.observe(viewLifecycleOwner) {
+            requireContext().unbindService(viewModel.serviceConnection)
+            if (it) {
                 jumpToTimer()
-                Log.i("debug","start with launched timer")
-            }else{
+            } else {
                 jumpToList()
-                Log.i("debug","start clean")
             }
         }
         return super.onCreateView(inflater, container, savedInstanceState)
     }
+
     private fun jumpToTimer() {
         jumpToList()
         val action = SetPreviewFragmentDirections.toTimer(-1, null)
         findNavController().navigate(action)
     }
 
-    private fun jumpToList(){
-        findNavController().navigate(R.id.to_list,null, navOptions {
+    private fun jumpToList() {
+        findNavController().navigate(R.id.to_list, null, navOptions {
             popUpTo(R.id.splashFragment, popUpToBuilder = {
                 inclusive = true
             })
