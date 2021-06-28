@@ -36,6 +36,11 @@ class SetPreviewFragment : Fragment() {
     private lateinit var viewmodel: SetPreviewViewModel
 
     private val args: SetPreviewFragmentArgs by navArgs()
+    private var setId = 0L
+
+    //if user clicks on edit button this field sets to true, so next time user returns to this screen
+    //from editing screen fragment says to viewmodel that actionSet have to be updated
+    private var readyForUpdateFlag: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,24 +49,10 @@ class SetPreviewFragment : Fragment() {
     ): View {
         binding = FragmentSetPreviewBinding.inflate(inflater)
         viewmodel = ViewModelProvider(this).get(SetPreviewViewModel::class.java)
-        val setId = args.setId
-
-        val serviceStartIntent = Intent(requireActivity(), TimerService::class.java)
-        requireContext().startService(serviceStartIntent)
-
-        val serviceIntent = Intent(requireActivity(), TimerService::class.java)
-
-        serviceIntent.putExtra(C.EXTRA_SET_ID, setId)
-        serviceIntent.action = C.ACTION_INIT_TIMER
-
-
-        requireActivity().bindService(
-            serviceIntent,
-            viewmodel.serviceConnection,
-            Context.BIND_AUTO_CREATE
-        )
+        setId = args.setId
 
         viewmodel.actionSetLiveData.observe(viewLifecycleOwner){
+            setId = viewmodel.getSetId()
             initViews(it)
         }
 
@@ -91,8 +82,7 @@ class SetPreviewFragment : Fragment() {
                     )
                     dialog.window?.setBackgroundDrawableResource(R.drawable.dialog_bg);
                 } else {
-                    Log.i("fragment_debug","unbind service")
-                    requireContext().unbindService(viewmodel.serviceConnection)
+                    stopService()
                     findNavController().navigateUp()
                 }
             }
@@ -110,6 +100,7 @@ class SetPreviewFragment : Fragment() {
         sharedElementEnterTransition = transition
         postponeEnterTransition()
     }
+
 
     private fun setPauseButtonIcon(pause: Boolean) {
         binding.pauseButton.setImageDrawable(
@@ -139,8 +130,7 @@ class SetPreviewFragment : Fragment() {
             setNegativeButton(
                 R.string.exit
             ) { dialog, id ->
-                Log.i("fragment_debug","unbind service")
-                requireContext().unbindService(viewmodel.serviceConnection)
+                stopService()
                 findNavController().navigateUp()
             }
         }
@@ -158,15 +148,16 @@ class SetPreviewFragment : Fragment() {
         if (viewmodel.isStarted()) {
             binding.motionLayoutPreview.transitionToEnd()
             //binding.motionLayoutPreview.setState(R.id.endCS, ConstraintSet.MATCH_CONSTRAINT, ConstraintSet.MATCH_CONSTRAINT)
-            //binding.motionLayoutPreview.progress = 1.0f
+            binding.motionLayoutPreview.progress = 1.0f
             setPauseButtonIcon(viewmodel.paused || viewmodel.currentAction().exactTimeDefine)
             adapter.currentAction = viewmodel.currentAction()
         }
 
         binding.rvPActionList.adapter = adapter
         binding.btnPEdit.setOnClickListener {
+            readyForUpdateFlag = true
             val extras = FragmentNavigatorExtras(binding.btnPEdit to "edit")
-            val action = SetPreviewFragmentDirections.editSetFromPreview(args.setId)
+            val action = SetPreviewFragmentDirections.editSetFromPreview(setId)
             findNavController().navigate(action, extras)
         }
 
@@ -270,8 +261,35 @@ class SetPreviewFragment : Fragment() {
     }
 
     override fun onStart() {
+        val serviceStartIntent = Intent(context, TimerService::class.java)
+        requireContext().startService(serviceStartIntent)
+
+        val serviceIntent = Intent(context, TimerService::class.java)
+
+        serviceIntent.putExtra(C.EXTRA_SET_ID, setId)
+        serviceIntent.action = C.ACTION_INIT_TIMER
+
+        requireContext().bindService(
+            serviceIntent,
+            viewmodel.serviceConnection,
+            Context.BIND_AUTO_CREATE
+        )
         viewmodel.isAppOpened = true
         super.onStart()
+    }
+
+    override fun onResume() {
+        if(readyForUpdateFlag){
+            readyForUpdateFlag = false
+            viewmodel.updateActionSet()
+        }
+
+        super.onResume()
+    }
+
+    fun stopService(){
+        viewmodel.stop()
+        requireContext().unbindService(viewmodel.serviceConnection)
     }
 
     override fun onStop() {

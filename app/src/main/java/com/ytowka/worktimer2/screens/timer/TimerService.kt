@@ -17,6 +17,7 @@ import com.ytowka.worktimer2.data.Repository
 import com.ytowka.worktimer2.data.models.Action
 import com.ytowka.worktimer2.data.models.ActionSet
 import com.ytowka.worktimer2.utils.C
+import com.ytowka.worktimer2.utils.C.Companion.observeOnce
 import com.ytowka.worktimer2.utils.C.Companion.toStringTime
 import com.ytowka.worktimer2.utils.timers.ActionsTimerSequence
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,13 +33,16 @@ class TimerService : Service() {
     var isAppOpened = true
         set(value) {
             field = value
-            if (this::timerSequence.isInitialized){
+            if (this::timerSequence.isInitialized) {
                 setOnActionFinishCallback(onActionFinishedCallback, value)
             }
         }
+
     private var onActionFinishedCallback: (Action) -> Unit = {}
 
     private lateinit var timerSequence: ActionsTimerSequence
+    var setId = 0L
+        private set
 
     val timerSequenceLiveData = MutableLiveData<ActionsTimerSequence>()
     val isLaunchedLiveData = MutableLiveData<Boolean>()
@@ -49,24 +53,36 @@ class TimerService : Service() {
     private var actionSetLiveData: LiveData<ActionSet>? = null
 
 
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.i("service_debug", "service started: $intent ")
         return super.onStartCommand(intent, flags, startId)
     }
-    override fun onBind(intent: Intent?): IBinder {
 
+
+    fun updateSet() {
+        if(!timerSequence.started){
+            actionSetLiveData = repository.getSet(setId)
+            actionSetLiveData!!.observeOnce {
+                Log.i("service_debug", "new timer sequence")
+                timerSequence.stop()
+                timerSequence = ActionsTimerSequence(it)
+                timerSequenceLiveData.value = timerSequence
+            }
+        }
+    }
+
+    override fun onBind(intent: Intent?): IBinder {
         Log.i("service_debug", "service bound: $intent")
         when (intent!!.action) {
             C.ACTION_INIT_TIMER -> {
-                Log.i("service_debug", "service bound to init timer")
                 val setId = intent.extras!![C.EXTRA_SET_ID] as Long
-
                 if (!isTimerCreated) {
+                    this.setId = setId
                     createForegroundNotification()
-
+                    Log.i("service_debug", "service bound to init timer")
                     actionSetLiveData = repository.getSet(setId)
-                    actionSetLiveData!!.observeForever {
+                    actionSetLiveData!!.observeOnce {
+                        Log.i("service_debug", "new timer sequence")
                         this.timerSequence = ActionsTimerSequence(it)
                         this.timerSequenceLiveData.value = timerSequence
                     }
@@ -89,9 +105,6 @@ class TimerService : Service() {
 
     private var isTimerCreated = false
 
-    private fun stopNotification() {
-        stopForeground(true)
-    }
 
     private fun createForegroundNotification() {
         val intent = Intent(this, MainActivity::class.java).also {
@@ -107,12 +120,13 @@ class TimerService : Service() {
                 .setContentTitle(applicationContext.getString(R.string.timer_started))
                 .setContentIntent(pendingIntent)
         stateNotification = notificationBuilder.build()
+
         startForeground(C.NOTIFICATION_STATE_ID, stateNotification)
     }
 
     private fun updateStateNotification(time: String, paused: Boolean = false) {
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        val intent = Intent(this, MainActivity::class.java).also { it ->
+        val intent = Intent(this, MainActivity::class.java).also {
             it.action = C.ACTION_SHOW_TIMER_FRAGMENT
         }
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, FLAG_UPDATE_CURRENT)
@@ -198,6 +212,7 @@ class TimerService : Service() {
     fun isRestarted() = timerSequence.restarted
 
     fun currentAction() = timerSequence.currAction()
+
     fun setOnSequenceFinish(onFinish: () -> Unit) {
         timerSequence.onSequenceFinish = onFinish
     }
@@ -222,13 +237,17 @@ class TimerService : Service() {
         timerSequence.next()
 
     }
+
     fun isTimerPaused(): Boolean {
         return timerSequence.paused
     }
 
     fun stopTimer() {
-        stopNotification()
-        timerSequence.stop()
+        if (isTimerCreated) {
+            timerSequence.stop()
+            stopForeground(true)
+            stopSelf()
+        }
     }
 
     fun pauseTimer() {
@@ -247,27 +266,18 @@ class TimerService : Service() {
     }
 
     override fun onDestroy() {
-        Log.i("life_service_debug", "destroy")
+        stopTimer()
+        //Log.i("life_service_debug", "destroy")
         super.onDestroy()
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
-        Log.i("service_debug", "unbind $intent")
-        if(intent?.action == C.ACTION_INIT_TIMER){
-            stopTimer()
-        }
-        //stopSelf()
-        isTimerCreated = false
+        //Log.i("service_debug", "unbind $intent")
         return super.onUnbind(intent)
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
-        Log.i("service_debug", "task removed")
+        //Log.i("service_debug", "task removed $rootIntent")
         super.onTaskRemoved(rootIntent)
-    }
-
-    override fun onRebind(intent: Intent?) {
-        Log.i("service_debug", "rebind")
-        super.onRebind(intent)
     }
 }

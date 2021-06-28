@@ -31,21 +31,19 @@ class SetPreviewViewModel @Inject constructor(
         field = value
         timerService?.isAppOpened = value
     }
-
-    // -1L to connect existing service;
-    // -2L viewmodel not inited
-    private var setId = -2L
-
     private var timerService: TimerService? = null
+    fun getSetId() = timerService!!.setId
 
     private val _actionSetLiveData = MutableLiveData<ActionSet>()
     val actionSetLiveData: LiveData<ActionSet> = _actionSetLiveData
 
+    fun updateActionSet(){
+        timerService!!.updateSet()
+    }
+
     private val timerSequenceObserver = Observer<ActionsTimerSequence>  {
-        if(it != null){
-            _actionSetLiveData.value = it.actionSet
-            C.log("viewmodel connected ${it.started}")
-        }
+        _actionSetLiveData.value = it.actionSet
+        C.log("viewmodel connected ${it.started}")
     }
 
     val serviceConnection = object : ServiceConnection {
@@ -55,22 +53,8 @@ class SetPreviewViewModel @Inject constructor(
             timerService!!.isAppOpened = isAppOpened
             timerService!!.timerSequenceLiveData.observeForever(timerSequenceObserver)
         }
-        override fun onServiceDisconnected(p0: ComponentName?) {
-
-        }
+        override fun onServiceDisconnected(p0: ComponentName?) {}
     }
-    /*fun setup(setId: Long): LiveData<ActionSet>{
-        C.log("setup preview viewmodel $setId","_viewmodel")
-        if(this.setId == -2L){
-            C.log("new setup","_viewmodel")
-            val serviceIntent = Intent(context, TimerService::class.java)
-            serviceIntent.putExtra(C.EXTRA_SET_ID, setId)
-            serviceIntent.action = C.ACTION_INIT_TIMER
-            context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
-            this.setId = setId
-        }
-        return actionSetLiveData
-    }*/
 
     //fun returns true if button starts or resumes current timer
     fun clickStartBtn(): Boolean {
@@ -107,6 +91,10 @@ class SetPreviewViewModel @Inject constructor(
     private fun nextTimer() = timerService!!.nextTimer()
     private fun isTimerPaused(): Boolean = timerService!!.isTimerPaused()
 
+    fun stop(){
+        timerService?.stopTimer()
+    }
+
 
     fun pauseTimer() = timerService!!.pauseTimer()
     fun resumeTimer() = timerService!!.resumeTimer()
@@ -119,7 +107,6 @@ class SetPreviewViewModel @Inject constructor(
             }
         }
         timerService!!.timerSequenceLiveData.removeObserver(timerSequenceObserver)
-        timerService = null
         super.onCleared()
     }
 }

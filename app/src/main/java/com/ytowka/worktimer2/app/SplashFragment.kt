@@ -34,7 +34,7 @@ class SplashFragment : Fragment(R.layout.fragment_splash) {
 
         viewModel = ViewModelProvider(requireActivity() as MainActivity).get(SplashViewModel::class.java)
 
-        val intentService = Intent(requireActivity(), TimerService::class.java)
+        val intentService = Intent(context, TimerService::class.java)
 
         intentService.action = C.ACTION_CHECK_IS_LAUNCHED
 
