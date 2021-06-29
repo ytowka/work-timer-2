@@ -20,7 +20,6 @@ import javax.inject.Inject
 @HiltViewModel
 class SetPreviewViewModel @Inject constructor(
     private val repository: Repository,
-    @ApplicationContext val context: Context
 ) : ViewModel() {
 
     @Inject
@@ -37,7 +36,10 @@ class SetPreviewViewModel @Inject constructor(
     var sound = true
     set(value) {
         field = value
-
+        timerService?.sound = value
+    }
+    fun toggleSound(){
+        sound = !sound
     }
 
     private val _actionSetLiveData = MutableLiveData<ActionSet>()

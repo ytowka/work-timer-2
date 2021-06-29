@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.view.menu.MenuBuilder
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -54,6 +55,18 @@ class SetPreviewFragment : Fragment() {
         viewmodel.actionSetLiveData.observe(viewLifecycleOwner){
             setId = viewmodel.getSetId()
             initViews(it)
+        }
+        binding.previewToolbar.inflateMenu(R.menu.preview_menu)
+
+        binding.previewToolbar.setOnMenuItemClickListener {
+            when (it.itemId){
+                R.id.volumeButton ->{
+                    viewmodel.toggleSound()
+                    val iconResource = if(viewmodel.sound) R.drawable.ic_volume_up else R.drawable.ic_volume_off
+                    binding.previewToolbar.menu.getItem(0).setIcon(iconResource)
+                }
+            }
+            true
         }
 
         binding.cardView.transitionName = "frame$setId"
@@ -102,6 +115,9 @@ class SetPreviewFragment : Fragment() {
     }
 
 
+
+    // `true`  for resumed state
+    // `false` for paused state
     private fun setPauseButtonIcon(pause: Boolean) {
         binding.pauseButton.setImageDrawable(
             ContextCompat.getDrawable(
@@ -145,11 +161,17 @@ class SetPreviewFragment : Fragment() {
                 viewmodel.jumpTo(it)
             }
         }
+        val iconResource = if(viewmodel.sound) R.drawable.ic_volume_up else R.drawable.ic_volume_off
+        binding.previewToolbar.menu.getItem(0).setIcon(iconResource)
+
         if (viewmodel.isStarted()) {
             binding.motionLayoutPreview.transitionToEnd()
-            //binding.motionLayoutPreview.setState(R.id.endCS, ConstraintSet.MATCH_CONSTRAINT, ConstraintSet.MATCH_CONSTRAINT)
             binding.motionLayoutPreview.progress = 1.0f
-            setPauseButtonIcon(viewmodel.paused || viewmodel.currentAction().exactTimeDefine)
+
+            setPauseButtonIcon(!viewmodel.paused)
+            if(!viewmodel.currentAction().exactTimeDefine){
+                setPauseButtonIcon(false)
+            }
             adapter.currentAction = viewmodel.currentAction()
         }
 

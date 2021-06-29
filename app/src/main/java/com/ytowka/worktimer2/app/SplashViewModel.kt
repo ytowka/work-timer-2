@@ -16,7 +16,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 @HiltViewModel
-class SplashViewModel @Inject constructor(@ApplicationContext context: Context) : ViewModel(){
+class SplashViewModel @Inject constructor() : ViewModel(){
 
     var service: TimerService? = null
 

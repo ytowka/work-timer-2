@@ -33,10 +33,17 @@ class TimerService : Service() {
         set(value) {
             field = value
             if (this::timerSequence.isInitialized) {
-                setOnActionFinishCallback(onActionFinishedCallback, value)
+                setOnActionFinishCallback(onActionFinishedCallback)
             }
         }
     var sound = true
+        set(value) {
+            field = value
+            if (this::timerSequence.isInitialized) {
+                Log.i("debug","sound setter: $field")
+                setOnActionFinishCallback(onActionFinishedCallback)
+            }
+        }
 
     private var onActionFinishedCallback: (Action) -> Unit = {}
 
@@ -161,10 +168,10 @@ class TimerService : Service() {
     private lateinit var timeTextUpdate: (Long) -> Unit
 
 
-    //TODO: remake adding callbacks system
 
-
-    fun setOnActionFinishCallback(callback: (Action) -> Unit, isAppOpened: Boolean = true) {
+    fun setOnActionFinishCallback(callback: (Action) -> Unit) {
+        Log.i("debug","sound fun: $sound")
+        this.onActionFinishedCallback = callback
         timerSequence.onActionFinished = {
             if (!isAppOpened && sound) {
                 notifyActionFinished(it)
@@ -172,8 +179,6 @@ class TimerService : Service() {
             callback(it)
         }
     }
-
-
     fun setupCallbacks(progressBarUpdate: (Long) -> Unit, timeTextUpdate: (Long) -> Unit) {
         this.progressBarUpdate = progressBarUpdate
         this.timeTextUpdate = timeTextUpdate
