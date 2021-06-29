@@ -23,7 +23,6 @@ import java.util.*
 
 @AndroidEntryPoint
 class TimersListFragment : Fragment() {
-
     fun List<ActionSet>.filterActions(query: String): List<ActionSet> {
         val lowCaseQuery = query.toLowerCase(Locale.ROOT)
         val filteredList = mutableListOf<ActionSet>()
@@ -36,7 +35,11 @@ class TimersListFragment : Fragment() {
         return filteredList
     }
 
-    private lateinit var binding: FragmentTimersListBinding
+    private var _binding: FragmentTimersListBinding? = null
+    private val binding: FragmentTimersListBinding
+    get() = _binding!!
+
+
     private lateinit var viewModel: TimerListViewModel
 
     private lateinit var setListAdapter: SetListAdapter
@@ -45,7 +48,7 @@ class TimersListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentTimersListBinding.inflate(inflater)
+        _binding = FragmentTimersListBinding.inflate(inflater)
         viewModel = ViewModelProvider(this).get(TimerListViewModel::class.java)
         return binding.root
     }
@@ -171,5 +174,8 @@ class TimersListFragment : Fragment() {
         binding.toolbar.title = resources.getString(R.string.selected) + ": " + selectedCount
     }
 
-
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
+    }
 }

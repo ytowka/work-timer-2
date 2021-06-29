@@ -26,14 +26,20 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class ActionEditFragment : Fragment() {
 
-    lateinit var binding: FragmentActionEditBinding
+    private var _binding: FragmentActionEditBinding? = null
+
+    private val binding: FragmentActionEditBinding
+    get() = _binding!!
+
+
+
     lateinit var viewmodel: EditingViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentActionEditBinding.inflate(inflater)
+        _binding = FragmentActionEditBinding.inflate(inflater)
         viewmodel = ViewModelProvider(requireActivity()).get(EditingViewModel::class.java)
 
 
@@ -167,5 +173,10 @@ class ActionEditFragment : Fragment() {
     override fun onStop() {
         viewmodel.commitChanges()
         super.onStop()
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 }

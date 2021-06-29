@@ -28,7 +28,12 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class EditSetFragment : Fragment() {
-    private lateinit var binding: FragmentEditSetBinding
+
+    private var _binding: FragmentEditSetBinding? = null
+    private val binding: FragmentEditSetBinding
+    get() = _binding!!
+
+
     private lateinit var viewModel: EditingViewModel
     private var setId: Long = 0
 
@@ -63,7 +68,7 @@ class EditSetFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentEditSetBinding.inflate(inflater)
+        _binding = FragmentEditSetBinding.inflate(inflater)
         viewModel = ViewModelProvider(requireActivity()).get(EditingViewModel::class.java)
         setId = (requireActivity() as EditorActivity).args.setId
 
@@ -140,5 +145,10 @@ class EditSetFragment : Fragment() {
             }
             dialog
         }
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 }

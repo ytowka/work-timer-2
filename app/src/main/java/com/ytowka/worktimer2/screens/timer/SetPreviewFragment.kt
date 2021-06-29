@@ -33,7 +33,14 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class SetPreviewFragment : Fragment() {
-    private lateinit var binding: FragmentSetPreviewBinding
+
+
+    private var _binding: FragmentSetPreviewBinding? = null
+
+    private val binding: FragmentSetPreviewBinding
+    get() = _binding!!
+
+
     private lateinit var viewmodel: SetPreviewViewModel
 
     private val args: SetPreviewFragmentArgs by navArgs()
@@ -48,7 +55,7 @@ class SetPreviewFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentSetPreviewBinding.inflate(inflater)
+        _binding = FragmentSetPreviewBinding.inflate(inflater)
         viewmodel = ViewModelProvider(this).get(SetPreviewViewModel::class.java)
         setId = args.setId
 
@@ -318,5 +325,9 @@ class SetPreviewFragment : Fragment() {
     override fun onStop() {
         viewmodel.isAppOpened = false
         super.onStop()
+    }
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 }
