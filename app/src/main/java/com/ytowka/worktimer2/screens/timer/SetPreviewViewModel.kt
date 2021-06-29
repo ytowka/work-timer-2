@@ -34,6 +34,12 @@ class SetPreviewViewModel @Inject constructor(
     private var timerService: TimerService? = null
     fun getSetId() = timerService!!.setId
 
+    var sound = true
+    set(value) {
+        field = value
+
+    }
+
     private val _actionSetLiveData = MutableLiveData<ActionSet>()
     val actionSetLiveData: LiveData<ActionSet> = _actionSetLiveData
 
@@ -80,7 +86,9 @@ class SetPreviewViewModel @Inject constructor(
     fun isRestarted() = timerService!!.isRestarted()
 
     fun setOnActionFinishCallback(callback: (Action) -> Unit) = timerService?.setOnActionFinishCallback(callback) ?: {throw Exception("timer service not inited")}
-    fun setupCallbacks(progressBarUpdate: (Long) -> Unit, timeTextUpdate: (Long) -> Unit) = timerService?.setupCallbacks(progressBarUpdate,timeTextUpdate) ?: {throw Exception("timer service not inited")}
+    fun setupCallbacks(progressBarUpdate: (Long) -> Unit, timeTextUpdate: (Long) -> Unit){
+        timerService?.setupCallbacks(progressBarUpdate, timeTextUpdate)
+    }
 
     fun currentAction() = timerService!!.currentAction()
     fun setOnSequenceFinish(onFinish: () -> Unit) = timerService!!.setOnSequenceFinish(onFinish)

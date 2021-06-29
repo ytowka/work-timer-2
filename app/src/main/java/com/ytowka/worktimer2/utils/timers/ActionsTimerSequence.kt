@@ -3,10 +3,10 @@ package com.ytowka.worktimer2.utils.timers
 import com.ytowka.worktimer2.data.models.Action
 import com.ytowka.worktimer2.data.models.ActionSet
 import com.ytowka.worktimer2.utils.timers.coroutine.CoroutineActionTimer
-import kotlin.reflect.KClass
 
 class ActionsTimerSequence(val actionSet: ActionSet) {
-    var onActionFinished: (ActionTimer) -> Unit = { _ -> }
+
+    var onActionFinished: (Action) -> Unit = { _ -> }
     var onSequenceFinish = {}
 
     var paused = false
@@ -19,7 +19,7 @@ class ActionsTimerSequence(val actionSet: ActionSet) {
         private set
 
     private var currActionIndex = 0
-    fun currAction() = actionSet.actions[currActionIndex]
+    fun currentAction() = actionSet.actions[currActionIndex]
     fun currentTimer() = timers[currActionIndex]
 
     private val timers: List<ActionTimer>
@@ -28,26 +28,41 @@ class ActionsTimerSequence(val actionSet: ActionSet) {
         timers = List(actionSet.actions.size) { index ->
             CoroutineActionTimer(actionSet.actions[index])
         }
-
         timers.forEachIndexed { id, timer ->
-            timer.onFinished = {
-                if (id == timers.lastIndex) {
+            if (id == timers.lastIndex) {
+                timer.onFinished = {
                     currActionIndex = 0
-                    onActionFinished(timers[0])
+                    onActionFinished(actionSet.actions[0])
+                    currentTimer().setCallbacks(callbackList)
+
                     started = false
                     restarted = true
                     onSequenceFinish()
-                } else {
+                }
+            } else {
+                timer.onFinished = {
                     currActionIndex = id + 1
-                    onActionFinished(currentTimer())
+                    onActionFinished(currentAction())
+                    currentTimer().setCallbacks(callbackList)
+
                     currentTimer().start()
                 }
             }
         }
     }
+    private val callbackList = mutableListOf<TimerCallback>()
+
+    fun addTimerCallback(timerCallback: TimerCallback){
+        callbackList.add(timerCallback)
+        currentTimer().addCallback(timerCallback)
+    }
+    fun clearTimerCallback(){
+        callbackList.clear()
+        currentTimer().clearCallBacks()
+    }
 
     fun start() {
-        onActionFinished(timers[currActionIndex])
+        onActionFinished(currentAction())
         restarted = false
         timers.first().start()
         started = true
@@ -63,14 +78,15 @@ class ActionsTimerSequence(val actionSet: ActionSet) {
 
         timers[currActionIndex].stop(true, true)
         currActionIndex = id
-        timers[id].start()
-        onActionFinished(timers[id])
+        currentTimer().start()
+        currentTimer().setCallbacks(callbackList)
+        onActionFinished(currentAction())
     }
 
     fun jumpToAction(actionPos: Int) {
         timers[currActionIndex].stop(true, true)
         currActionIndex = actionPos
-        onActionFinished(timers[actionPos])
+        onActionFinished(currentAction())
         timers[actionPos].start()
     }
 
@@ -87,4 +103,5 @@ class ActionsTimerSequence(val actionSet: ActionSet) {
         started = false
         timers[currActionIndex].stop(true)
     }
+
 }

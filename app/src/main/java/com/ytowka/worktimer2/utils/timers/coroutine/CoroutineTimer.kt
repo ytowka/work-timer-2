@@ -1,6 +1,7 @@
 package com.ytowka.worktimer2.utils.timers.coroutine
 
 import com.ytowka.worktimer2.utils.timers.Timer
+import com.ytowka.worktimer2.utils.timers.TimerCallback
 import kotlinx.coroutines.*
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
@@ -11,7 +12,6 @@ open class CoroutineTimer(
     timeUnit: TimeUnit = TimeUnit.SECONDS
 ) : Timer {
     companion object {
-
         // how frequently timer will check callbacks
         const val msStep = 10L
     }
@@ -92,26 +92,16 @@ open class CoroutineTimer(
         if (!isSkipped) onFinished()
     }
 
-    private val callbackList = mutableListOf<TimerCallback>()
+    private var callbackList = mutableListOf<TimerCallback>()
 
-    override fun addCallback(step: Long, callback: (timeState: Long) -> Unit) {
-        callbackList.add(TimerCallback(step, callback))
+    override fun addCallback(timerCallback: TimerCallback) {
+        callbackList.add(timerCallback)
     }
-
+    override fun setCallbacks(callbacks: List<TimerCallback>){
+        callbackList = callbacks.toMutableList()
+    }
     override fun clearCallBacks() {
         callbackList.clear()
     }
 }
 
-//default time unit is milliseconds
-class TimerCallback(private val step: Long, private val callback: (timeState: Long) -> Unit) {
-    var msDelta = 0L
-
-    fun onTimerUpdate(stepMs: Long, timeState: Long) {
-        msDelta += stepMs
-        if (msDelta >= step) {
-            msDelta -= step
-            callback(timeState)
-        }
-    }
-}

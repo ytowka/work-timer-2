@@ -16,6 +16,23 @@ interface Timer {
     fun pause()
     fun resume()
 
-    fun addCallback(step: Long, callback: (time: Long) -> Unit)
+    fun addCallback(timerCallback: TimerCallback)
     fun clearCallBacks()
+    fun setCallbacks(callbacks: List<TimerCallback>)
+}
+//default time unit is milliseconds
+class TimerCallback(private val step: Long = DEFAULT_UPDATE_TIME, private val callback: (timeState: Long) -> Unit) {
+    companion object{
+        const val DEFAULT_UPDATE_TIME = 13L//ms
+    }
+
+    var msDelta = 0L
+
+    fun onTimerUpdate(stepMs: Long, timeState: Long) {
+        msDelta += stepMs
+        if (msDelta >= step) {
+            msDelta -= step
+            callback(timeState)
+        }
+    }
 }

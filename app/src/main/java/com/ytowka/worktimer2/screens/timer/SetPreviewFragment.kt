@@ -204,6 +204,7 @@ class SetPreviewFragment : Fragment() {
             { time ->
                 binding.currentActionTime.text = time.toStringTime()
             })
+
         viewmodel.setOnActionFinishCallback { action ->
             initCard(action)
             binding.progressBar2.progress = binding.progressBar2.max

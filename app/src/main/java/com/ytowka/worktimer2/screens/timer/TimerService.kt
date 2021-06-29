@@ -10,7 +10,6 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import com.ytowka.worktimer2.app.MainActivity
 import com.ytowka.worktimer2.R
 import com.ytowka.worktimer2.data.Repository
@@ -20,8 +19,8 @@ import com.ytowka.worktimer2.utils.C
 import com.ytowka.worktimer2.utils.C.Companion.observeOnce
 import com.ytowka.worktimer2.utils.C.Companion.toStringTime
 import com.ytowka.worktimer2.utils.timers.ActionsTimerSequence
+import com.ytowka.worktimer2.utils.timers.TimerCallback
 import dagger.hilt.android.AndroidEntryPoint
-import java.lang.NullPointerException
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -37,6 +36,7 @@ class TimerService : Service() {
                 setOnActionFinishCallback(onActionFinishedCallback, value)
             }
         }
+    var sound = true
 
     private var onActionFinishedCallback: (Action) -> Unit = {}
 
@@ -51,13 +51,6 @@ class TimerService : Service() {
     private var actionNotification: Notification? = null
 
     private var actionSetLiveData: LiveData<ActionSet>? = null
-
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.i("service_debug", "service started: $intent ")
-        return super.onStartCommand(intent, flags, startId)
-    }
-
 
     fun updateSet() {
         if(!timerSequence.started){
@@ -167,42 +160,30 @@ class TimerService : Service() {
     private lateinit var progressBarUpdate: (Long) -> Unit
     private lateinit var timeTextUpdate: (Long) -> Unit
 
+
+    //TODO: remake adding callbacks system
+
+
     fun setOnActionFinishCallback(callback: (Action) -> Unit, isAppOpened: Boolean = true) {
         timerSequence.onActionFinished = {
-            if (!isAppOpened) {
-                notifyActionFinished(it.action)
+            if (!isAppOpened && sound) {
+                notifyActionFinished(it)
             }
-            callback(it.action)
-            if (it.reverseCountDown) {
-                it.addCallback(13, progressBarUpdate)
-            } else {
-                it.addCallback(13) { time ->
-                    progressBarUpdate((it.action.duration * 1000))
-                }
-            }
-            it.addCallback(1000) { time ->
-                updateStateNotification(time.toStringTime())
-                timeTextUpdate(time)
-            }
+            callback(it)
         }
     }
+
 
     fun setupCallbacks(progressBarUpdate: (Long) -> Unit, timeTextUpdate: (Long) -> Unit) {
         this.progressBarUpdate = progressBarUpdate
         this.timeTextUpdate = timeTextUpdate
-        timerSequence.currentTimer().clearCallBacks()
-        val it = timerSequence.currentTimer()
-        if (it.reverseCountDown) {
-            it.addCallback(13, progressBarUpdate)
-        } else {
-            it.addCallback(13) { time ->
-                progressBarUpdate((it.action.duration * 1000))
-            }
-        }
-        it.addCallback(1000) { time ->
-            updateStateNotification(time.toStringTime())
-            timeTextUpdate(time)
-        }
+
+        timerSequence.clearTimerCallback()
+        timerSequence.addTimerCallback(TimerCallback(13L, progressBarUpdate))
+        timerSequence.addTimerCallback(TimerCallback(1000L) {
+            updateStateNotification(it.toStringTime())
+            timeTextUpdate(it)
+        })
     }
 
     fun isStarted(): Boolean {
@@ -211,7 +192,7 @@ class TimerService : Service() {
 
     fun isRestarted() = timerSequence.restarted
 
-    fun currentAction() = timerSequence.currAction()
+    fun currentAction() = timerSequence.currentAction()
 
     fun setOnSequenceFinish(onFinish: () -> Unit) {
         timerSequence.onSequenceFinish = onFinish
@@ -263,21 +244,5 @@ class TimerService : Service() {
     inner class MyBinder : Binder() {
         val service
             get() = this@TimerService
-    }
-
-    override fun onDestroy() {
-        stopTimer()
-        //Log.i("life_service_debug", "destroy")
-        super.onDestroy()
-    }
-
-    override fun onUnbind(intent: Intent?): Boolean {
-        //Log.i("service_debug", "unbind $intent")
-        return super.onUnbind(intent)
-    }
-
-    override fun onTaskRemoved(rootIntent: Intent?) {
-        //Log.i("service_debug", "task removed $rootIntent")
-        super.onTaskRemoved(rootIntent)
     }
 }
