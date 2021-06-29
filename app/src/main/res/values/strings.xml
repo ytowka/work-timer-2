@@ -31,6 +31,7 @@
     <string name="empty_name">empty name</string>
     <string name="name_sort">sort by name</string>
     <string name="open_sort">sort by opens order</string>
+    <string name="delete_set">delete set?</string>
     <!-- TODO: Remove or change this placeholder text -->
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

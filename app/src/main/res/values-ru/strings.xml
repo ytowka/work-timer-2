@@ -30,4 +30,5 @@
     <string name="empty_name">пустое имя</string>
     <string name="name_sort">сортировка по имени</string>
     <string name="open_sort">сортировка по порядку открытия</string>
+    <string name="delete_set">удалить сет?</string>
 </resources>

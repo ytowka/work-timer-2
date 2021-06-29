@@ -1,6 +1,7 @@
 package com.ytowka.worktimer2.screens.editor
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -27,8 +28,8 @@ class EditingViewModel @Inject constructor(
 ) : ViewModel(), EditActionListAdapter.ActionEditCallback {
 
 
-    private var setId =
-        -2L // value -2 means viewmodel is not initialized, -1 means viewmodel is creating new a set
+    // value -2 means viewmodel is not initialized, -1 means viewmodel is creating new a set
+    private var setId = -2L
     lateinit var currAction: Action
 
     @Inject
@@ -52,6 +53,7 @@ class EditingViewModel @Inject constructor(
         }
 
     private val initializationLiveData = MutableLiveData<Boolean>()
+
 
     //if set is new it will return `true`
     fun initViewModel(setId: Long): LiveData<Boolean> {
@@ -85,19 +87,17 @@ class EditingViewModel @Inject constructor(
     fun commitChanges(): LiveData<Boolean> {
         val liveData = MutableLiveData<Boolean>()
         if (actions.isEmpty()) {
+            Log.i("debug","actions is empty")
             GlobalScope.launch {
                 repository.deleteActions(setInfo.setId)
                 repository.deleteSetInfo(setInfo)
+
                 liveData.postValue(true)
             }
         } else {
             if (isChanged) {
                 GlobalScope.launch {
-
-
-                    /*for (i in actions) {
-                        i.actionId = 0
-                    }*/
+                    Log.i("debug","actions is not empty")
                     repository.deleteActions(setInfo.setId)
 
                     repository.insertActionSet(ActionSet(setInfo, actions), false)
@@ -107,6 +107,15 @@ class EditingViewModel @Inject constructor(
                     }
                 }
             }
+        }
+        return liveData
+    }
+    fun deleteSet(): LiveData<Boolean>{
+        val liveData = MutableLiveData<Boolean>()
+        GlobalScope.launch {
+            repository.deleteActions(setInfo.setId)
+            repository.deleteSetInfo(setInfo)
+            liveData.postValue(true)
         }
         return liveData
     }
@@ -135,12 +144,14 @@ class EditingViewModel @Inject constructor(
         val buffer = actions[posFrom]
         actions.removeAt(posFrom)
         actions.add(posTo, buffer)
+        updateActions()
         isChanged = true
         return actions
     }
 
     override fun onDelete(pos: Int) {
         actions.removeAt(pos)
+        updateActions()
         isChanged = true
     }
 

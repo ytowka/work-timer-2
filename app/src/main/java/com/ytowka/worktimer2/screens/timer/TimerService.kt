@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.ytowka.worktimer2.app.MainActivity
 import com.ytowka.worktimer2.R
 import com.ytowka.worktimer2.data.Repository
@@ -21,6 +22,7 @@ import com.ytowka.worktimer2.utils.C.Companion.toStringTime
 import com.ytowka.worktimer2.utils.timers.ActionsTimerSequence
 import com.ytowka.worktimer2.utils.timers.TimerCallback
 import dagger.hilt.android.AndroidEntryPoint
+import java.lang.NullPointerException
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -59,15 +61,22 @@ class TimerService : Service() {
 
     private var actionSetLiveData: LiveData<ActionSet>? = null
 
-    fun updateSet() {
+    fun updateSet( onNullSet: ()->Unit) {
         if(!timerSequence.started){
-            actionSetLiveData = repository.getSet(setId)
-            actionSetLiveData!!.observeOnce {
-                Log.i("service_debug", "new timer sequence")
-                timerSequence.stop()
-                timerSequence = ActionsTimerSequence(it)
-                timerSequenceLiveData.value = timerSequence
-            }
+                actionSetLiveData = repository.getSet(setId)
+                actionSetLiveData!!.observeForever(object : Observer<ActionSet>{
+                    override fun onChanged(t: ActionSet?) {
+                        if(t == null){
+                            onNullSet()
+                            Log.i("service_debug", "null set")
+                        }else{
+                            timerSequence.stop()
+                            timerSequence = ActionsTimerSequence(t)
+                            timerSequenceLiveData.value = timerSequence
+                        }
+                    }
+                })
+
         }
     }
 

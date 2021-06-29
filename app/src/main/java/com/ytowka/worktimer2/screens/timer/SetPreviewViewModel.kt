@@ -45,8 +45,14 @@ class SetPreviewViewModel @Inject constructor(
     private val _actionSetLiveData = MutableLiveData<ActionSet>()
     val actionSetLiveData: LiveData<ActionSet> = _actionSetLiveData
 
+
+    private val _nullSetLiveData = MutableLiveData<Unit>()
+    val nullSetLiveData: LiveData<Unit> = _nullSetLiveData
+
     fun updateActionSet(){
-        timerService!!.updateSet()
+        timerService!!.updateSet {
+            _nullSetLiveData.value = Unit
+        }
     }
 
     private val timerSequenceObserver = Observer<ActionsTimerSequence>  {

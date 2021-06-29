@@ -63,6 +63,9 @@ class SetPreviewFragment : Fragment() {
             setId = viewmodel.getSetId()
             initViews(it)
         }
+        viewmodel.nullSetLiveData.observe(viewLifecycleOwner){
+            findNavController().navigateUp()
+        }
         binding.previewToolbar.inflateMenu(R.menu.preview_menu)
 
         binding.previewToolbar.setOnMenuItemClickListener {

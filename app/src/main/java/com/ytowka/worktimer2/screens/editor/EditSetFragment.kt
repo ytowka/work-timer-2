@@ -22,7 +22,6 @@ import com.ytowka.worktimer2.adapters.EditActionListAdapter
 import com.ytowka.worktimer2.data.models.Action
 import com.ytowka.worktimer2.databinding.DialogEditingActionExitBinding
 import com.ytowka.worktimer2.databinding.FragmentEditSetBinding
-import com.ytowka.worktimer2.utils.C
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -34,7 +33,9 @@ class EditSetFragment : Fragment() {
     get() = _binding!!
 
 
-    private lateinit var viewModel: EditingViewModel
+    private lateinit var viewmodel: EditingViewModel
+
+    // if setId is -1 this set is new
     private var setId: Long = 0
 
     private lateinit var adapter: EditActionListAdapter
@@ -46,21 +47,54 @@ class EditSetFragment : Fragment() {
         sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(R.transition.complex)
     }
 
-    private val backPressedCallback = object : OnBackPressedCallback(true){
-        override fun handleOnBackPressed() {
-            if(viewModel.isChanged && !viewModel.isEmpty){
-                buildDialog {
+    fun onBackPressed(){
+        if(viewmodel.isEmpty && setId == -1L){
+
+        }
+        if(viewmodel.isChanged){
+            if(viewmodel.isEmpty){
+                if(setId != -1L){
+                    buildDeleteDialog {
+                        viewmodel.deleteSet().observe(viewLifecycleOwner){
+                            (requireActivity() as EditorActivity).exit()
+                        }
+                    }.apply {
+                        show()
+                        getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(
+                            resources.getColor(
+                                R.color.colorOnSurface,
+                                requireContext().theme
+                            )
+                        )
+                        getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(
+                            resources.getColor(
+                                R.color.colorOnSurface,
+                                requireContext().theme
+                            )
+                        )
+                        window?.setBackgroundDrawableResource(R.drawable.dialog_bg);
+                    }
+                }else{
+                    (requireActivity() as EditorActivity).exit()
+                }
+            }else{
+                buildNamingDialog {
                     binding.progressBarSavingAction.visibility = View.VISIBLE
-                    viewModel.commitChanges().observe(viewLifecycleOwner){
+                    viewmodel.commitChanges().observe(viewLifecycleOwner){
                         (requireActivity() as EditorActivity).exit()
                     }
                 }.apply {
                     show()
                     window?.setBackgroundDrawableResource(R.drawable.dialog_bg);
                 }
-            }else{
-                (requireActivity() as EditorActivity).exit()
             }
+        }else{
+            (requireActivity() as EditorActivity).exit()
+        }
+    }
+    private val backPressedCallback = object : OnBackPressedCallback(true){
+        override fun handleOnBackPressed() {
+            onBackPressed()
         }
     }
 
@@ -69,7 +103,7 @@ class EditSetFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentEditSetBinding.inflate(inflater)
-        viewModel = ViewModelProvider(requireActivity()).get(EditingViewModel::class.java)
+        viewmodel = ViewModelProvider(requireActivity()).get(EditingViewModel::class.java)
         setId = (requireActivity() as EditorActivity).args.setId
 
         //if this fragment opened for new action set, setId = -1
@@ -79,35 +113,64 @@ class EditSetFragment : Fragment() {
         val theme: Resources.Theme = requireContext().theme
         theme.resolveAttribute(R.attr.colorOnPrimary, typedValue, true)
         @ColorInt val color = typedValue.data
+
         //val color = getColor(R.color.colorOnPrimary, getTheme())
 
         binding.toolbar2.setTitleTextColor(color)
         val openEditActionFragment: (Action) -> Unit = { action ->
             val transitionAction =
                 EditSetFragmentDirections.toActionEdit()
-            viewModel.currAction = action
+            viewmodel.currAction = action
             findNavController().navigate(transitionAction)
         }
 
 
-        viewModel.initViewModel(setId).observe(viewLifecycleOwner){
+        viewmodel.initViewModel(setId).observe(viewLifecycleOwner){
             initViews()
-
             requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,backPressedCallback);
         }
         adapter = EditActionListAdapter(
             mutableListOf(),
             openEditActionFragment
-            , viewModel)
-        viewModel.infoLiveData.observe(viewLifecycleOwner){
+            , viewmodel)
+        viewmodel.infoLiveData.observe(viewLifecycleOwner){
             setName = it.name
         }
-        viewModel.actionsLiveData.observe(viewLifecycleOwner){ actions ->
+        viewmodel.actionsLiveData.observe(viewLifecycleOwner){ actions ->
+            binding.toolbar2.menu.clear()
+
+            if(actions.isNotEmpty()){
+                binding.toolbar2.inflateMenu(R.menu.set_edit_menu)
+                binding.toolbar2.setOnMenuItemClickListener {
+                    if(it.itemId == R.id.set_edit_done){
+                        onBackPressed()
+                    }
+                    if(it.itemId == R.id.set_edit_delete){
+                        val dialog = buildDeleteDialog{
+                            viewmodel.deleteSet().observe(viewLifecycleOwner){
+                                (requireActivity() as EditorActivity).exit()
+                            }
+                        }
+                        dialog.show()
+                        dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(
+                            resources.getColor(
+                                R.color.colorOnSurface,
+                                requireContext().theme
+                            )
+                        )
+                        dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(
+                            resources.getColor(
+                                R.color.colorOnSurface,
+                                requireContext().theme
+                            )
+                        )
+                        dialog.window?.setBackgroundDrawableResource(R.drawable.dialog_bg)
+                    }
+                    true
+                }
+            }
+
             adapter.setUp(actions)
-            /*if(actions.isNotEmpty()){
-                viewModel.currAction = actions[0]
-                binding.rvEditingActionsList.scrollToPosition(actions.indexOf(viewModel.currAction))
-            }*/
         }
         return binding.root
     }
@@ -115,15 +178,16 @@ class EditSetFragment : Fragment() {
         binding.rvEditingActionsList.layoutManager = LinearLayoutManager(context)
         binding.rvEditingActionsList.adapter = adapter
         binding.floatingActionButtonAddAction.setOnClickListener {
-            viewModel.newAction(adapter.itemCount)
+            viewmodel.newAction(adapter.itemCount)
         }
         ItemTouchHelper(ActionListTouchHelperCallback(adapter)).attachToRecyclerView(binding.rvEditingActionsList)
     }
 
-    private fun buildDialog(onConfirm: () -> Unit): AlertDialog {
+    private fun buildNamingDialog(onConfirm: () -> Unit): AlertDialog {
         return requireActivity().let {
             val builder = AlertDialog.Builder(it,R.style.roundedDialog)
             val dialogBinding = DialogEditingActionExitBinding.inflate(requireActivity().layoutInflater)
+
             builder.setView(dialogBinding.root)
             val dialog = builder.create()
             dialogBinding.edittextTimerName.setText(setName)
@@ -141,10 +205,29 @@ class EditSetFragment : Fragment() {
                 dialog.dismiss()
             }
             dialogBinding.edittextTimerName.addTextChangedListener{ text ->
-                viewModel.updateSetName(text.toString())
+                viewmodel.updateSetName(text.toString())
             }
             dialog
         }
+    }
+    private fun buildDeleteDialog(onConfirm: () -> Unit): AlertDialog {
+        val builder: AlertDialog.Builder? = activity?.let {
+            AlertDialog.Builder(it, R.style.roundedDialog)
+        }
+        builder?.setMessage(R.string.delete_set)
+
+        builder?.apply {
+            setPositiveButton(
+                R.string.cancel
+            ) { _, _ -> }
+            setNegativeButton(
+                R.string.delete
+            ) { _, _ ->
+                onConfirm()
+            }
+        }
+        val dialog: AlertDialog? = builder?.create()
+        return dialog!!
     }
 
     override fun onDestroyView() {
