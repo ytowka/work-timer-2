@@ -16,8 +16,10 @@ class TimerListViewModel @Inject constructor(private val repository: Repository)
     private var setListLiveData: MutableLiveData<List<ActionSet>>? = null
     private var currentSortType = SortType.OPEN
 
-    private val observer = Observer<List<ActionSet>>{
-        setListLiveData!!.value = it
+    private val observer = Observer<List<ActionSet>>{ it ->
+        setListLiveData!!.value = it.sortedByDescending { set ->
+            set.setInfo.lastOpen
+        }
     }
 
     fun getSetList(): LiveData<List<ActionSet>> {
