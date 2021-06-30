@@ -25,4 +25,5 @@ class ActionListTouchHelperCallback(private val editActionListAdapter: EditActio
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
         editActionListAdapter.remove(viewHolder.adapterPosition)
     }
+
 }

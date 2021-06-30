@@ -11,7 +11,11 @@
         tools:layout="@layout/fragment_edit_set" >
         <action
             android:id="@+id/to_action_edit"
-            app:destination="@id/actionEditFragment" />
+            app:destination="@id/actionEditFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
     <fragment
         android:id="@+id/actionEditFragment"

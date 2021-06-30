@@ -144,7 +144,7 @@ class EditingViewModel @Inject constructor(
         val buffer = actions[posFrom]
         actions.removeAt(posFrom)
         actions.add(posTo, buffer)
-        updateActions()
+        //updateActions()
         isChanged = true
         return actions
     }
