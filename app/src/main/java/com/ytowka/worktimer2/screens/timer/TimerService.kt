@@ -36,8 +36,15 @@ class TimerService : Service() {
             field = value
             if (this::timerSequence.isInitialized) {
                 setOnActionFinishCallback(onActionFinishedCallback)
+                if(!value) {
+                    timerSequence.clearTimerCallback()
+                    timerSequence.addTimerCallback(TimerCallback(1000L) {
+                        updateStateNotification(it.toStringTime())
+                    })
+                }
             }
         }
+
     var sound = true
         set(value) {
             field = value
@@ -74,7 +81,9 @@ class TimerService : Service() {
                             timerSequence = ActionsTimerSequence(t)
                             timerSequenceLiveData.value = timerSequence
                         }
+                        actionSetLiveData!!.removeObserver(this)
                     }
+
                 })
 
         }
@@ -84,6 +93,7 @@ class TimerService : Service() {
         Log.i("service_debug", "service bound: $intent")
         when (intent!!.action) {
             C.ACTION_INIT_TIMER -> {
+                Log.i("debug","app opened")
                 val setId = intent.extras!![C.EXTRA_SET_ID] as Long
                 if (!isTimerCreated) {
                     this.setId = setId
@@ -179,25 +189,34 @@ class TimerService : Service() {
 
 
     fun setOnActionFinishCallback(callback: (Action) -> Unit) {
-        Log.i("debug","sound fun: $sound")
+        Log.i("debug","sound: $sound; app opened: $isAppOpened")
         this.onActionFinishedCallback = callback
-        timerSequence.onActionFinished = {
-            if (!isAppOpened && sound) {
-                notifyActionFinished(it)
+        if(isAppOpened){
+            timerSequence.onActionFinished = {
+                callback(it)
             }
-            callback(it)
+            timerSequence.onSequenceFinish
+        }else{
+            timerSequence.onActionFinished = {
+                if (sound) {
+                    notifyActionFinished(it)
+                }
+            }
+            timerSequence.onSequenceFinish = {}
         }
     }
     fun setupCallbacks(progressBarUpdate: (Long) -> Unit, timeTextUpdate: (Long) -> Unit) {
-        this.progressBarUpdate = progressBarUpdate
-        this.timeTextUpdate = timeTextUpdate
+        if(isAppOpened){
+            this.progressBarUpdate = progressBarUpdate
+            this.timeTextUpdate = timeTextUpdate
 
-        timerSequence.clearTimerCallback()
-        timerSequence.addTimerCallback(TimerCallback(13L, progressBarUpdate))
-        timerSequence.addTimerCallback(TimerCallback(1000L) {
-            updateStateNotification(it.toStringTime())
-            timeTextUpdate(it)
-        })
+            timerSequence.clearTimerCallback()
+            timerSequence.addTimerCallback(TimerCallback(13L, progressBarUpdate))
+            timerSequence.addTimerCallback(TimerCallback(1000L) {
+                updateStateNotification(it.toStringTime())
+                timeTextUpdate(it)
+            })
+        }
     }
 
     fun isStarted(): Boolean {
@@ -208,8 +227,10 @@ class TimerService : Service() {
 
     fun currentAction() = timerSequence.currentAction()
 
-    fun setOnSequenceFinish(onFinish: () -> Unit) {
-        timerSequence.onSequenceFinish = onFinish
+    var onSequenceFinish: () -> Unit = {}
+    set(value) {
+        field = value
+        timerSequence.onSequenceFinish = value
     }
 
     val paused: Boolean get() = timerSequence.paused
@@ -258,5 +279,10 @@ class TimerService : Service() {
     inner class MyBinder : Binder() {
         val service
             get() = this@TimerService
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        Log.i("debug","app closed via task")
+        super.onTaskRemoved(rootIntent)
     }
 }

@@ -247,6 +247,7 @@ class SetPreviewFragment : Fragment() {
                 if (action.exactTimeDefine) (action.duration * 1000).toStringTime() else "0"
         }
         viewmodel.setOnSequenceFinish {
+            Log.i("debug","sequence finish")
             adapter.currentAction = null
             binding.rvPActionList.scrollToPosition(0)
             binding.pauseButton.setImageDrawable(
@@ -325,12 +326,8 @@ class SetPreviewFragment : Fragment() {
         viewmodel.stop()
         requireContext().unbindService(viewmodel.serviceConnection)
     }
-
-    override fun onStop() {
-        viewmodel.isAppOpened = false
-        super.onStop()
-    }
     override fun onDestroyView() {
+        viewmodel.isAppOpened = false
         _binding = null
         super.onDestroyView()
     }

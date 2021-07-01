@@ -99,13 +99,23 @@ class SetPreviewViewModel @Inject constructor(
     }
 
     fun currentAction() = timerService!!.currentAction()
-    fun setOnSequenceFinish(onFinish: () -> Unit) = timerService!!.setOnSequenceFinish(onFinish)
+
+    fun setOnSequenceFinish(onFinish: () -> Unit) {
+        timerService!!.onSequenceFinish = onFinish
+    }
+
     val paused: Boolean get() = timerService!!.paused
+
     fun jumpTo(action: Action) = timerService!!.jumpTo(action)
+
     fun getCurrentTimerTime(): Long = timerService!!.getCurrentTimerTime()
+
     private fun start() = timerService!!.startTimers()
+
     private fun nextTimer() = timerService!!.nextTimer()
+
     private fun isTimerPaused(): Boolean = timerService!!.isTimerPaused()
+
 
     fun stop(){
         timerService?.stopTimer()
