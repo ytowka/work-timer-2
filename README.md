@@ -12,6 +12,8 @@ app supports english and russian languages
 - Navigation Component
 - Room
 - Coroutines
+- Service
+- Material design
 
 # Project structure:
 there is five main folders in project:
