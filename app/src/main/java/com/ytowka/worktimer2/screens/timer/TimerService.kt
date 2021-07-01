@@ -90,18 +90,14 @@ class TimerService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder {
-        Log.i("service_debug", "service bound: $intent")
         when (intent!!.action) {
             C.ACTION_INIT_TIMER -> {
-                Log.i("debug","app opened")
                 val setId = intent.extras!![C.EXTRA_SET_ID] as Long
                 if (!isTimerCreated) {
                     this.setId = setId
                     createForegroundNotification()
-                    Log.i("service_debug", "service bound to init timer")
                     actionSetLiveData = repository.getSet(setId)
                     actionSetLiveData!!.observeOnce {
-                        Log.i("service_debug", "new timer sequence")
                         this.timerSequence = ActionsTimerSequence(it)
                         this.timerSequenceLiveData.value = timerSequence
                     }
@@ -109,17 +105,11 @@ class TimerService : Service() {
                 }
             }
             C.ACTION_CHECK_IS_LAUNCHED -> {
-                Log.i("service_debug", "service bound to check state $isTimerCreated")
                 isLaunchedLiveData.value = isTimerCreated
             }
         }
 
         return binder
-    }
-
-    override fun onCreate() {
-        super.onCreate()
-        Log.i("life_service_debug", "service created: $this")
     }
 
     private var isTimerCreated = false
@@ -189,7 +179,6 @@ class TimerService : Service() {
 
 
     fun setOnActionFinishCallback(callback: (Action) -> Unit) {
-        Log.i("debug","sound: $sound; app opened: $isAppOpened")
         this.onActionFinishedCallback = callback
         if(isAppOpened){
             timerSequence.onActionFinished = {
@@ -282,7 +271,6 @@ class TimerService : Service() {
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
-        Log.i("debug","app closed via task")
         super.onTaskRemoved(rootIntent)
     }
 }

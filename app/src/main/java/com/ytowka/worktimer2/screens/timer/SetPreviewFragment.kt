@@ -34,9 +34,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class SetPreviewFragment : Fragment() {
 
-
     private var _binding: FragmentSetPreviewBinding? = null
-
     private val binding: FragmentSetPreviewBinding
     get() = _binding!!
 

@@ -10,6 +10,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+//hilt module for room classes
 @Module
 @InstallIn(SingletonComponent::class)
 object RoomModule {

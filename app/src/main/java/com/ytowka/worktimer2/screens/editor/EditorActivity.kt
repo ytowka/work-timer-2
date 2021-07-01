@@ -6,6 +6,7 @@ import androidx.navigation.navArgs
 import com.ytowka.worktimer2.R
 import dagger.hilt.android.AndroidEntryPoint
 
+//activity created for shared viewmodels
 @AndroidEntryPoint
 class EditorActivity : AppCompatActivity() {
     val args: EditorActivityArgs by navArgs()

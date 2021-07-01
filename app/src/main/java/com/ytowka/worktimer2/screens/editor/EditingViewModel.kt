@@ -179,6 +179,7 @@ class EditingViewModel @Inject constructor(
 
 
     // --------------------------------action editor methods-----------------------------------------------------------------------------
+
     fun applyActionType(actionType: ActionType): Action {
         if (actionType == defaultTypes[2]) {
             GlobalScope.launch {

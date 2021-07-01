@@ -28,8 +28,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
     }
-
-    override fun onResume() {
+    /*override fun onResume() {
         super.onResume()
         binding.fragment.findNavController().addOnDestinationChangedListener { controller, destination, arguments ->
             var string = ""
@@ -37,7 +36,7 @@ class MainActivity : AppCompatActivity() {
                 string+="${it.destination.label}, "
             }
 
-            //Log.i("nav_debug", "back stack: $string")
+            Log.i("nav_debug", "back stack: $string")
         }
-    }
+    }*/
 }

@@ -3,7 +3,6 @@ package com.ytowka.worktimer2.utils.timers
 interface Timer {
     val duration: Long
 
-
     val reverseCountDown: Boolean
     fun isStarted(): Boolean
     fun isPaused(): Boolean

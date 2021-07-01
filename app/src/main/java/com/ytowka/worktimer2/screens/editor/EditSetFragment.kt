@@ -27,7 +27,6 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class EditSetFragment : Fragment() {
-
     private var _binding: FragmentEditSetBinding? = null
     private val binding: FragmentEditSetBinding
     get() = _binding!!
@@ -48,9 +47,6 @@ class EditSetFragment : Fragment() {
     }
 
     fun onBackPressed(){
-        if(viewmodel.isEmpty && setId == -1L){
-
-        }
         if(viewmodel.isChanged){
             if(viewmodel.isEmpty){
                 if(setId != -1L){
@@ -115,7 +111,6 @@ class EditSetFragment : Fragment() {
         @ColorInt val color = typedValue.data
 
         //val color = getColor(R.color.colorOnPrimary, getTheme())
-
         binding.toolbar2.setTitleTextColor(color)
         val openEditActionFragment: (Action) -> Unit = { action ->
             val transitionAction =

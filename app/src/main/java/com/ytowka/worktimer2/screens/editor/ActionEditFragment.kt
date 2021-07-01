@@ -27,11 +27,8 @@ import dagger.hilt.android.AndroidEntryPoint
 class ActionEditFragment : Fragment() {
 
     private var _binding: FragmentActionEditBinding? = null
-
     private val binding: FragmentActionEditBinding
     get() = _binding!!
-
-
 
     lateinit var viewmodel: EditingViewModel
 
@@ -41,7 +38,6 @@ class ActionEditFragment : Fragment() {
     ): View {
         _binding = FragmentActionEditBinding.inflate(inflater)
         viewmodel = ViewModelProvider(requireActivity()).get(EditingViewModel::class.java)
-
 
         initViews(viewmodel.currAction)
         return binding.root
@@ -81,6 +77,7 @@ class ActionEditFragment : Fragment() {
             findNavController().navigateUp()
             true
         }
+
         val onActionTypeClick: (ActionType) -> Unit = {
             initAction(viewmodel.applyActionType(it))
         }

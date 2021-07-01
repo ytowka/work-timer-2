@@ -11,7 +11,6 @@ import javax.inject.Inject
 class TimerListViewModel @Inject constructor(private val repository: Repository) : ViewModel() {
 
     var selectingMode = false
-    var searchingMode = false
 
     private var setListLiveData: MutableLiveData<List<ActionSet>>? = null
     private var currentSortType = SortType.OPEN

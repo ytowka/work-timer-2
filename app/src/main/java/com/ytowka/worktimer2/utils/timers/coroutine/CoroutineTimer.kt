@@ -12,6 +12,7 @@ open class CoroutineTimer(
     timeUnit: TimeUnit = TimeUnit.SECONDS
 ) : Timer {
     companion object {
+
         // how frequently timer will check callbacks
         const val msStep = 10L
     }

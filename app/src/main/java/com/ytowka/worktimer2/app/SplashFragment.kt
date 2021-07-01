@@ -30,12 +30,10 @@ class SplashFragment : Fragment(R.layout.fragment_splash) {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-
         viewModel = ViewModelProvider(requireActivity() as MainActivity).get(SplashViewModel::class.java)
 
+        //connecting to service for checking is timer already started
         val intentService = Intent(context, TimerService::class.java)
-
         intentService.action = C.ACTION_CHECK_IS_LAUNCHED
 
         requireActivity().bindService(
@@ -43,7 +41,6 @@ class SplashFragment : Fragment(R.layout.fragment_splash) {
             viewModel.serviceConnection,
             Context.BIND_AUTO_CREATE
         )
-
 
         viewModel.isTimerInitedLiveData.observe(viewLifecycleOwner) {
             requireContext().unbindService(viewModel.serviceConnection)

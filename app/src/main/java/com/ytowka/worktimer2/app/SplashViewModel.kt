@@ -29,10 +29,8 @@ class SplashViewModel @Inject constructor() : ViewModel(){
             service!!.isLaunchedLiveData.observeOnce {
                 isTimerInitedLiveData.value = it
             }
-            Log.i("debug","service connected to splash viewModel")
         }
         override fun onServiceDisconnected(p0: ComponentName?) {
-            Log.i("debug","service disconnected from splash viewModel")
             service = null
         }
     }
