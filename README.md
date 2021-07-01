@@ -1,8 +1,10 @@
 #   Work-timer-2
 app with interval timers that you can configure by yourself
 apk file you can find in `app/release`
+app supports english and russian languages
 
 # Screenshots
+<img src="https://github.com/ytowka/work-timer-2/blob/main/screenshots/list.png" width="30%" height="30%"> <img src="https://github.com/ytowka/work-timer-2/blob/main/screenshots/timer.png" width="30%" height="30%"> <img src="https://github.com/ytowka/work-timer-2/blob/main/screenshots/fast%20set%20editing.png" width="30%" height="30%">
 
 #   Technology stack:
 - MVVM
